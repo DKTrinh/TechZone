@@ -7,3 +7,9 @@ Mở Terminal (PowerShell hoặc Command Prompt) tại thư mục gốc của d�
 
 ```bash
 C:\xampp\php\php.exe -S localhost:8000 -t public
+```
+
+### Bước 2: Truy cập giao diện web
+Sau khi server đã chạy thành công, bạn hãy mở trình duyệt web (Chrome, Edge, Firefox,...) và truy cập vào đường dẫn sau để xem trang chủ:
+
+[http://localhost:8000/public_entry.php](http://localhost:8000/public_entry.php)
