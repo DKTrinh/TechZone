@@ -1,10 +1,29 @@
 <?php
+
 class Database {
-    public static function connect() {
-        try {
-            return new PDO("mysql:host=localhost;dbname=cleantech;charset=utf8mb4", "root", "");
-        } catch (PDOException $e) {
-            die("Lỗi kết nối DB: " . $e->getMessage());
+    private static $connection = null;
+
+    public static function getConnection() {
+        if (self::$connection === null) {
+            try {
+                self::$connection = new PDO(
+                    "mysql:host=localhost;dbname=cleantech;charset=utf8",
+                    "root",
+                    ""
+                );
+
+                self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            } catch (PDOException $e) {
+                die("DB Error: " . $e->getMessage());
+            }
         }
+
+        return self::$connection;
+    }
+
+    // ✅ FIX TOÀN BỘ MODEL (QUAN TRỌNG)
+    public static function connect() {
+        return self::getConnection();
     }
 }
