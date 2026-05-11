@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
+    address VARCHAR(255),
     avatar VARCHAR(255),
     gender ENUM('male', 'female', 'other'),
     birthdate DATE,
@@ -34,15 +35,17 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 -- ==============================================
--- 3. TẠO BẢNG SẢN PHẨM (PRODUCTS)
+-- 3. TẠO BẢNG SẢN PHẨM (PRODUCTS) - Gộp 2 Web
 -- ==============================================
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     category_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    efficiency VARCHAR(20),
+    efficiency VARCHAR(20),               -- Thuộc tính đặc thù của Cleantech
     price DECIMAL(10,2) NOT NULL DEFAULT 0,
+    old_price DECIMAL(10,2) DEFAULT 0,    -- Thuộc tính đặc thù của TechZone
+    installment_info VARCHAR(50),         -- Thông tin trả góp
     thumbnail VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
@@ -56,8 +59,38 @@ CREATE TABLE IF NOT EXISTS news (
     title VARCHAR(255) NOT NULL,
     badge VARCHAR(50), 
     category VARCHAR(100), 
-    content TEXT,
+    content TEXT NOT NULL,
     image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==============================================
+-- 5. BẢNG BÌNH LUẬN (COMMENTS) - Hỗ trợ cả 2 web
+-- ==============================================
+CREATE TABLE IF NOT EXISTS comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NULL,                  -- Bỏ trống nếu là bình luận bài viết
+    news_id INT NULL,                     -- Bỏ trống nếu là bình luận sản phẩm
+    content TEXT NOT NULL,
+    rating INT DEFAULT 5,
+    status TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_comment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    CONSTRAINT fk_comment_news FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE
+);
+
+-- ==============================================
+-- 6. BẢNG LIÊN HỆ (CONTACTS)
+-- ==============================================
+CREATE TABLE IF NOT EXISTS contacts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fullname VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    subject VARCHAR(255),
+    message TEXT NOT NULL,
+    status ENUM('pending', 'resolved') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -65,26 +98,34 @@ CREATE TABLE IF NOT EXISTS news (
 -- ĐỔ DỮ LIỆU MẪU ĐỂ TEST
 -- ==============================================
 
--- Thêm 2 tài khoản test (Mật khẩu của cả 2 đều là: password)
--- Hash BCRYPT dưới đây là mã hóa chuẩn của chuỗi "password"
-INSERT INTO users (fullname, email, password, role, status) VALUES
-('Quản trị viên', 'admin@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 1),
-('Khách hàng', 'user@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'client', 1);
+-- 1. Tài khoản
+INSERT INTO users (fullname, email, password, role, status, address) VALUES
+('Quản trị viên', 'admin@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 1, 'Hà Nội'),
+('Khách hàng', 'user@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'client', 1, 'Hồ Chí Minh');
 
--- Thêm danh mục
-INSERT INTO categories (name, slug) VALUES ('Flue Gas Treatment', 'flue-gas-treatment');
+-- 2. Danh mục
+INSERT INTO categories (name, slug) VALUES 
+('Flue Gas Treatment', 'flue-gas-treatment'),
+('Điện thoại', 'dien-thoai'), 
+('Laptop', 'laptop');
 
--- Thêm sản phẩm
-INSERT INTO products (category_id, name, description, efficiency) VALUES
-(1, 'Electrostatic Precipitation', 'High-efficiency particle removal using electrostatic forces to capture fine particulates.', '99.8%'),
-(1, 'Wet Scrubbing Systems', 'Liquid-based absorption technology for removing acidic gases and soluble pollutants.', '98.5%'),
-(1, 'Selective Catalytic Reduction', 'Advanced catalytic process for converting nitrogen oxides into harmless nitrogen and water vapor.', '95.0%'),
-(1, 'Fabric Filtration', 'Baghouse technology using specialized filter media to capture particulate matter.', '99.9%');
+-- 3. Sản phẩm (Gồm cả Cleantech và TechZone)
+INSERT INTO products (category_id, name, description, efficiency, price, old_price, installment_info) VALUES
+(1, 'Electrostatic Precipitation', 'High-efficiency particle removal.', '99.8%', 50000000, 55000000, NULL),
+(1, 'Wet Scrubbing Systems', 'Liquid-based absorption technology.', '98.5%', 45000000, 48000000, NULL),
+(2, 'iPhone 15 Pro Max 256GB', 'Siêu phẩm Apple 2023', NULL, 29990000, 34990000, 'Giảm 2 triệu'),
+(3, 'MacBook Air M3', 'Laptop mỏng nhẹ, pin trâu', NULL, 27990000, 29990000, 'Tặng túi chống sốc');
 
--- Thêm bài viết
+-- 4. Tin tức & Bài viết
 INSERT INTO news (title, badge, category, content, image) VALUES
-('Global Energy Corp', '45% reduction in emissions', 'Power Generation', 'Implemented comprehensive flue gas treatment system across 3 coal-fired power plants.', 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b'),
-('SteelTech Industries', '60% NOx reduction', 'Steel Manufacturing', 'Retrofitted existing facilities with SCR technology, dramatically improving air quality.', 'https://images.unsplash.com/photo-1581094288338-2314dddb7ece'),
-('Maritime Solutions Ltd', 'IMO 2020 Compliance', 'Shipping', 'Deployed compact scrubber systems across fleet of 50 vessels, ensuring full regulatory compliance.', 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3');
+('Global Energy Corp', '45% reduction', 'Power Generation', 'Implemented comprehensive flue gas treatment system across 3 coal-fired power plants.', 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b'),
+('Maritime Solutions Ltd', 'IMO 2020 Compliance', 'Shipping', 'Deployed compact scrubber systems across fleet of 50 vessels.', 'https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3'),
+('Apple ra mắt chip M3', 'Mới nhất', 'Công nghệ', 'Chip M3 mới của Apple mang lại hiệu năng vượt trội.', 'https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg');
+
+-- 5. Bình luận (Test cả bình luận bài viết và bình luận sản phẩm)
+INSERT INTO comments (user_id, news_id, product_id, content, rating) VALUES
+(2, 1, NULL, 'Bài viết về năng lượng này phân tích rất chuyên sâu và dễ hiểu!', 5),
+(2, NULL, 3, 'iPhone 15 Pro Max xài mượt, chụp hình siêu nét.', 5),
+(2, 3, NULL, 'Cảm ơn admin đã cập nhật thông tin về chip M3 mới.', 4);
 
 SET FOREIGN_KEY_CHECKS = 1;

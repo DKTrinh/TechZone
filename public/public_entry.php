@@ -30,11 +30,20 @@ switch ($url) {
     case 'profile-update':
     case 'profile-password':
     case 'profile-avatar':
+    case 'profile-check-pass':
         require_once '../app/controllers/ProfileController.php';
         $app = new ProfileController($db);
-        $app->index(); 
+        
+        if ($url === 'profile') {
+            $app->index();
+        } elseif ($url === 'profile-update') {
+            $app->update();
+        } elseif ($url === 'profile-password') {
+            $app->changePassword();
+        } elseif ($url === 'profile-check-pass') {
+            $app->checkCurrentPassword();
+        }
         break;
-
     // --- CÁC TRANG PUBLIC (SỬA LỖI 404 TẠI ĐÂY) ---
     case 'home':
         require_once '../app/controllers/HomeController.php';
@@ -121,6 +130,52 @@ switch ($url) {
             $adminApp->update();
         }
         break;
+
+        // BÊN TRONG KHỐI PROFILE (Thêm route check-pass)
+    case 'profile':
+    case 'profile-update':
+    case 'profile-password':
+    case 'profile-avatar':
+    case 'profile-check-pass': // Dòng mới thêm
+        require_once '../app/controllers/ProfileController.php';
+        $app = new ProfileController($db);
+        if ($url === 'profile') $app->index();
+        elseif ($url === 'profile-update') $app->update();
+        elseif ($url === 'profile-password') $app->changePassword();
+        elseif ($url === 'profile-avatar') $app->uploadAvatar();
+        elseif ($url === 'profile-check-pass') $app->checkCurrentPassword(); // Hàm mới
+        break;
+
+    // BÊN TRONG KHỐI ADMIN (Thêm route user-store)
+    // --- GOM DUY NHẤT 1 KHỐI QUẢN LÝ ADMIN USER ---
+    case 'users':
+    case 'user-edit':
+    case 'user-update':
+    case 'user-lock':
+    case 'user-reset':
+    case 'user-store':
+        // Kiểm tra quyền Admin
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+            echo "<script>alert('Từ chối truy cập!'); window.location.href='public_entry.php?url=home';</script>"; exit;
+        }
+        
+        require_once '../app/controllers/AdminUserController.php';
+        $adminApp = new AdminUserController($db);
+        
+        // Điều hướng đúng chức năng
+        if ($url === 'users') {
+            $adminApp->index();
+        } elseif ($url === 'user-update') {
+            $adminApp->update();
+        } elseif ($url === 'user-lock') {
+            $adminApp->lock();
+        } elseif ($url === 'user-reset') {
+            $adminApp->resetPassword();
+        } elseif ($url === 'user-store') {
+            $adminApp->store();
+        }
+        break;
+    // ---------------------------------------------
 
     default:
         require_once '../app/views/layouts/header.php';

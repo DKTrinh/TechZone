@@ -1,29 +1,66 @@
 <?php
-class NewsModel {
-    private $conn;
-    
-    public function __construct() {
-        // Kết nối database trực tiếp trong model
-        $host = 'localhost';
-        $dbname = 'cleantech';
-        $username = 'root';
-        $password = '';
-        
-        try {
-            $this->conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
-            die("Kết nối database thất bại: " . $e->getMessage());
-        }
+// app/models/NewsModel.php
+
+// Sửa lại dòng này để trỏ chính xác vào file BaseModel.php
+require_once __DIR__ . '/../core/BaseModel.php';
+
+class NewsModel extends BaseModel {
+    protected $table = 'news';
+
+    // 1. Dùng cho trang chủ (HomeController): Fix lỗi Fatal Error
+    public function getSuccessStories($limit = 3) {
+        $sql = "SELECT * FROM news ORDER BY created_at DESC LIMIT $limit";
+        return $this->fetchAll($sql);
     }
-    
-    // Lấy tin tức mới nhất cho trang chủ
+
+    // 2. Dùng cho trang Tin tức: Lấy danh sách kèm phân trang và tìm kiếm
+    public function getPublished($keyword = '', $page = 1, $limit = 6) {
+        $page = max(1, (int)$page); // Đảm bảo trang luôn >= 1
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "SELECT * FROM news WHERE title LIKE ? OR content LIKE ? ORDER BY created_at DESC LIMIT $limit OFFSET $offset";
+        return $this->fetchAll($sql, ["%$keyword%", "%$keyword%"]);
+    }
+
+    // 3. Đếm tổng số bài viết để tính số trang (Pagination)
+    public function countNews($keyword = '') {
+        $sql = "SELECT COUNT(*) as total FROM news WHERE title LIKE ? OR content LIKE ?";
+        $result = $this->fetchOne($sql, ["%$keyword%", "%$keyword%"]);
+        return $result['total'] ?? 0;
+    }
+
+    // 4. Lấy chi tiết 1 bài viết bằng ID
+    public function getById($id) {
+        $sql = "SELECT * FROM news WHERE id = ?";
+        return $this->fetchOne($sql, [$id]);
+    }
+
+    // 5. (Dành cho Admin) Thêm bài viết mới
+    public function addNews($title, $content, $image, $category = 'Công nghệ', $badge = '') {
+        $sql = "INSERT INTO news (title, content, image, category, badge, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+        return $this->execute($sql, [$title, $content, $image, $category, $badge]);
+    }
+
+    // 6. (Dành cho Admin) Cập nhật bài viết
+    public function updateNews($id, $title, $content, $image, $category, $badge) {
+        $sql = "UPDATE news SET title = ?, content = ?, image = ?, category = ?, badge = ?, updated_at = NOW() WHERE id = ?";
+        return $this->execute($sql, [$title, $content, $image, $category, $badge, $id]);
+    }
+
+    // 7. (Dành cho Admin) Xóa bài viết
+    public function deleteNews($id) {
+        $sql = "DELETE FROM news WHERE id = ?";
+        return $this->execute($sql, [$id]);
+    }
+
+    // Thêm hàm này để xử lý lỗi "Call to undefined method NewsModel::getLatestNews"
     public function getLatestNews($limit = 3) {
-        $query = "SELECT * FROM news ORDER BY created_at DESC LIMIT :limit";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        // Dùng intval để chống lỗi SQL Injection khi truyền số
+        $limit = (int) $limit;
+        
+        // Sắp xếp bài viết mới nhất lên đầu (dựa vào created_at hoặc id)
+        $sql = "SELECT * FROM news ORDER BY created_at DESC LIMIT $limit";
+        
+        return $this->fetchAll($sql);
     }
 }
-?>
