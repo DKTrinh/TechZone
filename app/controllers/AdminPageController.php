@@ -1,32 +1,34 @@
 <?php
-// app/controllers/AdminPageController.php
-require_once 'app/models/PageModel.php';
+require_once '../app/models/PageModel.php';
 
 class AdminPageController {
+    private $db;
+    public function __construct($db) { $this->db = $db; }
+
     public function editAbout() {
-        $model = new PageModel();
-        $data = $model->getPageData('about');
-        include 'app/views/admin/pages/about.php';
+        $model = new PageModel($this->db);
+        $contents = $model->getAboutContent();
+        include '../app/views/admin/pages/about_edit.php';
     }
 
-    public function updateAbout() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $content = $_POST['content'];
-            $phone = $_POST['phone'];
-            $address = $_POST['address'];
-            $imagePath = null;
+    // app/controllers/AdminPageController.php
 
-            // Xử lý upload ảnh lên server 
-            if (isset($_FILES['logo']) && $_FILES['logo']['error'] === 0) {
-                $targetDir = "public/assets/uploads/";
-                $fileName = time() . "_" . $_FILES["logo"]["name"];
-                if (move_uploaded_file($_FILES["logo"]["tmp_name"], $targetDir . $fileName)) {
-                    $imagePath = "/assets/uploads/" . $fileName;
-                }
+public function updateAbout() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $model = new PageModel($this->db);
+        if (isset($_POST['content'])) {
+            foreach ($_POST['content'] as $key => $value) {
+                $model->updateContent($key, trim($value));
             }
-
-            (new PageModel())->updatePage('about', $content, $phone, $address, $imagePath);
-            header("Location: /admin/about?msg=success");
+            $_SESSION['success_message'] = "Cập nhật nội dung TechZone thành công!";
         }
+        // Sau khi lưu xong, quay về trang sửa để xem kết quả
+        header("Location: public_entry.php?url=admin/about-edit");
+        exit();
+    } else {
+        // Nếu ai đó cố tình vào link này bằng GET, đẩy họ về trang chủ admin
+        header("Location: public_entry.php?url=admin/about-edit");
+        exit();
+    }
     }
 }

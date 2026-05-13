@@ -103,7 +103,6 @@ switch ($url) {
         $app->index();
         break;
 
-    case 'users':
     case 'user-edit':
     case 'user-update':
     case 'user-lock':
@@ -176,7 +175,46 @@ switch ($url) {
         }
         break;
     // ---------------------------------------------
+    case 'admin/about-edit':
+        require_once '../app/controllers/AdminPageController.php';
+        (new AdminPageController($db))->editAbout();
+        break;
 
+    case 'admin/about-update':
+        require_once '../app/controllers/AdminPageController.php';
+        (new AdminPageController($db))->updateAbout();
+        break;
+
+    case 'admin/faq':
+    case 'admin/faq/edit':
+    case 'admin/faq/update':
+    case 'admin/faq/delete':
+    case 'admin/faq/create':
+    case 'admin/faq/store':
+        // 1. Kiểm tra quyền Admin để bảo mật hệ thống TechZone
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+            header('Location: public_entry.php?url=home');
+            exit;
+        }
+
+        // 2. Nạp Controller
+        require_once '../app/controllers/AdminFaqController.php';
+        $faqAdmin = new AdminFaqController($db);
+
+        // 3. Điều hướng dựa trên URL
+        if ($url === 'admin/faq') $faqAdmin->index();
+        elseif ($url === 'admin/faq/create') $faqAdmin->create();
+        elseif ($url === 'admin/faq/store') $faqAdmin->store();
+        elseif ($url === 'admin/faq/edit') $faqAdmin->edit();
+        elseif ($url === 'admin/faq/update') $faqAdmin->update();
+        elseif ($url === 'admin/faq/delete') $faqAdmin->delete();
+        break;
+
+    // Tìm case 'faqs' và thêm case mới này bên dưới
+    case 'faq/user-request':
+        require_once '../app/controllers/FaqController.php';
+        (new FaqController($db))->userRequest();
+        break;
     default:
         require_once '../app/views/layouts/header.php';
         echo "<div class='container my-5 text-center'><h1>404 - Trang không tồn tại</h1></div>";

@@ -1,29 +1,18 @@
 <?php
-// app/models/PageModel.php
 class PageModel {
     private $db;
+    public function __construct($db) { $this->db = $db; }
 
-    public function __construct() {
-        global $conn;
-        $this->db = $conn;
+    // Lấy toàn bộ nội dung của trang About
+    public function getAboutContent() {
+        $stmt = $this->db->prepare("SELECT * FROM page_contents WHERE page_key LIKE 'about_%'");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getPageData($type) {
-        $sql = "SELECT * FROM pages WHERE page_type = '$type' LIMIT 1";
-        $result = mysqli_query($this->db, $sql);
-        return mysqli_fetch_assoc($result);
-    }
-
-    public function updatePage($type, $content, $phone, $address, $image = null) {
-        if ($image) {
-            $sql = "UPDATE pages SET content = ?, phone = ?, address = ?, image_path = ? WHERE page_type = ?";
-            $stmt = mysqli_prepare($this->db, $sql);
-            mysqli_stmt_bind_param($stmt, "sssss", $content, $phone, $address, $image, $type);
-        } else {
-            $sql = "UPDATE pages SET content = ?, phone = ?, address = ? WHERE page_type = ?";
-            $stmt = mysqli_prepare($this->db, $sql);
-            mysqli_stmt_bind_param($stmt, "ssss", $content, $phone, $address, $type);
-        }
-        return mysqli_stmt_execute($stmt);
+    // Cập nhật nội dung theo key
+    public function updateContent($key, $value) {
+        $stmt = $this->db->prepare("UPDATE page_contents SET content_value = ? WHERE page_key = ?");
+        return $stmt->execute([$value, $key]);
     }
 }

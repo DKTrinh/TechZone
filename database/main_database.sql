@@ -94,6 +94,24 @@ CREATE TABLE IF NOT EXISTS contacts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS page_contents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    page_key VARCHAR(50) NOT NULL UNIQUE, -- Định danh trang (vd: 'about')
+    section_name VARCHAR(100) NOT NULL,    -- Tên phần (vd: 'tiểu sử')
+    content_value TEXT NOT NULL,           -- Nội dung thực tế
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS faqs (
+    f_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT,
+    status ENUM('pending', 'answered') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 -- ==============================================
 -- ĐỔ DỮ LIỆU MẪU ĐỂ TEST
 -- ==============================================
@@ -128,4 +146,13 @@ INSERT INTO comments (user_id, news_id, product_id, content, rating) VALUES
 (2, NULL, 3, 'iPhone 15 Pro Max xài mượt, chụp hình siêu nét.', 5),
 (2, 3, NULL, 'Cảm ơn admin đã cập nhật thông tin về chip M3 mới.', 4);
 
+-- Chèn dữ liệu mẫu cho TechZone
+INSERT INTO page_contents (page_key, section_name, content_value) VALUES 
+('about_history', 'Tiểu sử & Hình thành', 'TechZone là hệ thống bán lẻ công nghệ hàng đầu...'),
+('about_mission', 'Sứ mệnh & Tầm nhìn', 'Mang công nghệ đỉnh cao tới mọi nhà...'),
+('about_goal', 'Mục tiêu chiến lược', 'Phủ sóng 63 tỉnh thành...');
+
+INSERT INTO faqs (title, question, answer, status) VALUES 
+('BẢO HÀNH', 'Chính sách bảo hành Laptop Gaming?', 'Bảo hành 12 tháng chính hãng.', 'answered'),
+('TRẢ GÓP', 'Có hỗ trợ trả góp 0% không?', 'Có hỗ trợ qua thẻ tín dụng.', 'answered');
 SET FOREIGN_KEY_CHECKS = 1;

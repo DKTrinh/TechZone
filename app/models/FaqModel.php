@@ -1,48 +1,48 @@
 <?php
-// app/models/FaqModel.php
 class FaqModel {
     private $db;
-
-    public function __construct() {
-        // Giả sử bạn có file config kết nối database
-        global $conn; 
-        $this->db = $conn;
-    }
+    public function __construct($db) { $this->db = $db; }
 
     public function getAll() {
-        $sql = "SELECT * FROM faqs ORDER BY id DESC";
-        return mysqli_query($this->db, $sql);
+        return $this->db->query("SELECT * FROM faqs ORDER BY f_id DESC")->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getWithPagination($limit, $offset) {
-        $sql = "SELECT * FROM faqs ORDER BY id DESC LIMIT $limit OFFSET $offset"; 
-        return mysqli_query($this->db, $sql);
+    public function getForUser($limit = 5) {
+        $stmt = $this->db->prepare("SELECT * FROM faqs WHERE status = 'answered' ORDER BY f_id DESC LIMIT ?");
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function countAll() {
-        $sql = "SELECT COUNT(*) as total FROM faqs";
-        $result = mysqli_query($this->db, $sql);
-        return mysqli_fetch_assoc($result)['total'];
+    public function getById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM faqs WHERE f_id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function insert($question, $answer) {
-        $sql = "INSERT INTO faqs (question, answer) VALUES (?, ?)";
-        $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "ss", $question, $answer);
-        return mysqli_stmt_execute($stmt);
+    /**
+ * Thêm mới một câu hỏi vào hệ thống
+ * Mặc định câu hỏi mới từ khách sẽ có status là 'pending' và chưa có answer
+ *
+ */
+    public function insert($title, $question, $answer = null, $status = 'pending') {
+        // 1. Chuẩn bị câu lệnh SQL
+        $sql = "INSERT INTO faqs (title, question, answer, status) VALUES (?, ?, ?, ?)";
+        
+        // 2. Sử dụng prepare để bảo mật PDO
+        $stmt = $this->db->prepare($sql);
+        
+        // 3. Thực thi và trả về kết quả (true/false)
+        return $stmt->execute([$title, $question, $answer, $status]);
     }
 
-    public function update($id, $question, $answer) {
-        $sql = "UPDATE faqs SET question = ?, answer = ? WHERE id = ?";
-        $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "ssi", $question, $answer, $id);
-        return mysqli_stmt_execute($stmt);
+    public function update($id, $title, $question, $answer, $status) {
+        $sql = "UPDATE faqs SET title = ?, question = ?, answer = ?, status = ? WHERE f_id = ?";
+        return $this->db->prepare($sql)->execute([$title, $question, $answer, $status, $id]);
     }
 
     public function delete($id) {
-        $sql = "DELETE FROM faqs WHERE id = ?";
-        $stmt = mysqli_prepare($this->db, $sql);
-        mysqli_stmt_bind_param($stmt, "i", $id);
-        return mysqli_stmt_execute($stmt);
+        $stmt = $this->db->prepare("DELETE FROM faqs WHERE f_id = ?");
+        return $stmt->execute([$id]);
     }
 }

@@ -1,149 +1,130 @@
 <div class="container my-5 py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-3 fw-bold text-info y2k-glitch-text">CÁC CÂU HỎI THƯỜNG GẶP VÀ GIẢI ĐÁP</h1>
-        <p class="text-secondary small fw-bold">TRUY VẤN CƠ SỞ DỮ LIỆU GIẢI ĐÁP HỆ THỐNG CLEANTECH</p>
-    </div>
+    <div class="tz-container shadow-lg border-0">
+        <div class="row g-0 h-100">
+            <div class="col-md-4 tz-sidebar p-4 d-flex flex-column text-white">
+                <div class="sidebar-header mb-5">
+                    <div class="tz-dot-red"></div>
+                    <div class="tz-dot-yellow"></div>
+                    <div class="tz-dot-green"></div>
+                    <h5 class="fw-bold mt-3 text-uppercase">Hỗ trợ TechZone</h5>
+                </div>
+                <p class="small opacity-75 mt-4">Tổng hợp giải đáp giúp bạn tối ưu trải nghiệm thiết bị.</p>
+                <div class="mt-auto pt-5">
+                    <a href="?url=home" class="tz-link">← Quay lại Trang chủ</a>
+                </div>
+            </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="accordion y2k-accordion mb-5" id="faqSystem">
-                <?php if (isset($data['faqs']) && !empty($data['faqs'])): ?>
-                    <?php foreach ($data['faqs'] as $index => $faq): ?>
-                        <div class="accordion-item y2k-packet mb-3 shadow-sm">
-                            <h2 class="accordion-header" id="heading-<?= $index ?>">
-                                <button class="accordion-button collapsed fw-bold text-dark" 
-                                        type="button" 
-                                        data-bs-toggle="collapse" 
-                                        data-bs-target="#collapse-<?= $index ?>">
-                                    <span class="y2k-status-dot me-3"></span>
-                                    <span class="text-info me-2">[REQ_<?= $index + 1 ?>]</span> 
-                                    <?= htmlspecialchars($faq['question']) ?>
-                                </button>
-                            </h2>
-                            <div id="collapse-<?= $index ?>" 
-                                 class="accordion-collapse collapse" 
-                                 data-bs-parent="#faqSystem">
-                                <div class="accordion-body y2k-terminal-text">
-                                    <div class="d-flex">
-                                        <i class="fas fa-chevron-right me-2 text-success"></i>
-                                        <div><?= nl2br(htmlspecialchars($faq['answer'])) ?></div>
+            <div class="col-md-8 p-5 overflow-auto bg-white">
+                <h2 class="tz-title mb-4 text-uppercase">Cơ sở dữ liệu giải đáp</h2>
+                <div class="accordion tz-accordion-clean" id="faqAccordion">
+                    <?php if (isset($data['faqs']) && !empty($data['faqs'])): ?>
+                        <?php foreach ($data['faqs'] as $index => $faq): ?>
+                            <div class="accordion-item mb-3 border-0 shadow-sm rounded-4 overflow-hidden">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed fw-bold text-tz-green py-4" 
+                                            type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse-<?= $index ?>">
+                                        <span class="tz-status-dot me-3"></span>
+                                        <span class="text-tz-orange me-2">[<?= htmlspecialchars($faq['title']) ?>]</span> 
+                                        <?= htmlspecialchars($faq['question']) ?>
+                                    </button>
+                                </h2>
+                                <div id="collapse-<?= $index ?>" class="accordion-collapse collapse">
+                                    <div class="accordion-body tz-answer-clean pt-0 pb-4 px-5">
+                                        <div class="ps-4 border-start border-2 border-tz-orange">
+                                            <?= nl2br(htmlspecialchars($faq['answer'])) ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="y2k-card p-5 text-center border-dashed">
-                        <p class="text-muted mb-0 italic">/ Hệ thống hiện chưa có câu hỏi nào được giải nén /</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-
-            <div class="y2k-container p-5 border-info shadow-lg">
-                <div class="row align-items-center">
-                    <div class="col-md-6 mb-4 mb-md-0">
-                        <h3 class="fw-bold text-info mb-3">GỬI YÊU CẦU TRUY VẤN</h3>
-                        <p class="text-secondary small leading-relaxed">
-                            Bạn không tìm thấy câu trả lời? Hãy gửi câu hỏi cho hệ thống. <br>
-                            Yêu cầu của bạn sẽ được chuyển đến <strong>Quản trị viên</strong> để phân tích và cập nhật.
-                        </p>
-                    </div>
-                    <div class="col-md-6">
-                        <form id="faqRequestForm" class="y2k-form p-4 rounded bg-white shadow-sm border">
-                            <div class="mb-3">
-                                <label class="extra-small fw-bold text-muted text-uppercase mb-2">Chủ đề truy vấn</label>
-                                <input type="text" class="form-control y2k-input" placeholder="Ví dụ: Hiệu suất lọc AIoT..." required>
-                            </div>
-                            <div class="mb-4">
-                                <label class="extra-small fw-bold text-muted text-uppercase mb-2">Nội dung câu hỏi</label>
-                                <textarea class="form-control y2k-input" rows="3" placeholder="Nhập câu hỏi của bạn tại đây..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-info w-100 fw-bold text-white py-3 rounded-pill">
-                                <i class="fas fa-paper-plane me-2"></i> GỬI YÊU CẦU ĐẾN ADMIN
-                            </button>
-                        </form>
-                    </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p class="text-muted italic text-center py-5">/ Hiện chưa có câu hỏi nào được công bố /</p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-/* STYLE Y2K BREAKTHROUGH CHO FAQs */
-.y2k-accordion .accordion-item {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    border-radius: 15px !important;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-}
-
-.y2k-packet .accordion-button {
-    background: transparent;
-    padding: 20px;
-    font-size: 0.95rem;
-    transition: 0.3s;
-}
-
-.y2k-packet .accordion-button:not(.collapsed) {
-    background: rgba(13, 202, 240, 0.05);
-    color: #0dcaf0 !important;
-    box-shadow: none;
-}
-
-/* Dấu chấm trạng thái nhấp nháy (System dot) */
-.y2k-status-dot {
-    width: 10px; height: 10px; background: #27c93f;
-    border-radius: 50%; display: inline-block;
-    animation: blink 1.5s infinite;
-}
-
-.y2k-terminal-text {
-    background: #1e1e1e;
-    color: #d1d1d1;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 0.85rem;
-    padding: 25px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-}
-
-.y2k-input {
-    background: #f4f6fa;
-    border: 2px solid transparent;
-    padding: 12px;
-    border-radius: 10px;
-}
-
-.y2k-input:focus {
-    border-color: #0dcaf0;
-    background: white;
-    box-shadow: none;
-}
-
-@keyframes blink {
-    0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
-}
-
-.y2k-glitch-text {
-    letter-spacing: -2px;
-    text-shadow: 2px 2px #ff5f56, -2px -2px #27c93f;
-}
-</style>
+<div class="row justify-content-center pb-5">
+    <div class="col-lg-10">
+        <div class="tz-card p-5 border-0 shadow-lg" style="background: #f4fbfb; border-radius: 30px;">
+            <div class="row align-items-center">
+                <div class="col-md-5">
+                    <h3 class="fw-bold text-tz-green mb-3">BẠN CÒN THẮC MẮC?</h3>
+                    <p class="text-secondary small">Gửi câu hỏi và chúng tôi sẽ phản hồi sớm nhất.</p>
+                </div>
+                <div class="col-md-7">
+                    <form id="userQuestionForm">
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted text-uppercase mb-2">Chủ đề</label>
+                            <input type="text" id="q_title" class="form-control tz-input" placeholder="Ví dụ: Laptop" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted text-uppercase mb-2">Câu hỏi</label>
+                            <textarea id="q_content" class="form-control tz-input" rows="3" placeholder="Nội dung..." required></textarea>
+                        </div>
+                        <button type="submit" id="btnSubmitFaq" class="btn btn-tz-orange w-100 fw-bold text-white py-3 rounded-pill shadow">
+                            GỬI YÊU CẦU ĐẾN ADMIN
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-document.getElementById('faqRequestForm').addEventListener('submit', function(e) {
+document.getElementById('userQuestionForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    // Sử dụng SweetAlert2 (đã có trong footer của bạn) để xác nhận
-    Swal.fire({
-        icon: 'success',
-        title: 'YÊU CẦU ĐÃ GỬI!',
-        text: 'Câu hỏi của bạn đã được chuyển đến Admin. Vui lòng kiểm tra lại sau khi Admin phản hồi.',
-        confirmButtonColor: '#0dcaf0',
-        timer: 4000
+    const btn = document.getElementById('btnSubmitFaq');
+    const title = document.getElementById('q_title').value;
+    const question = document.getElementById('q_content').value;
+
+    btn.disabled = true;
+    btn.innerHTML = 'ĐANG GỬI...';
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('question', question);
+
+    fetch('public_entry.php?url=faq/user-request', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            alert('Thành công! Câu hỏi của bạn đang chờ duyệt.');
+            document.getElementById('userQuestionForm').reset(); // Empty ô trống
+        }
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = 'GỬI YÊU CẦU ĐẾN ADMIN';
     });
-    
-    this.reset(); // Xóa sạch form sau khi gửi
 });
 </script>
+
+<style>
+:root { --tz-green: #1e3a3a; --tz-orange: #ff9d2e; }
+.tz-container { background: rgba(255,255,255,0.9); border-radius: 35px; min-height: 600px; }
+.tz-sidebar { background: linear-gradient(180deg, #1e3a3a 0%, #0d1a1a 100%); border-radius: 35px 0 0 35px; }
+.tz-title { color: var(--tz-green); font-weight: 800; }
+.text-tz-green { color: var(--tz-green); }
+.text-tz-orange { color: var(--tz-orange); }
+.tz-answer-clean { color: var(--tz-green); line-height: 1.6; }
+.tz-status-dot { width: 10px; height: 10px; background: #27c93f; border-radius: 50%; display: inline-block; }
+/* NÚT BẤM CAM TECHZONE */
+.btn-tz-orange { 
+    background-color: #ff9d2e !important; 
+    color: #fff !important; 
+    border: none;
+    transition: 0.3s;
+}
+.btn-tz-orange:hover { background-color: #e68a1e !important; transform: translateY(-2px); }
+.tz-input { border-radius: 15px; border: 1px solid #ced4da; padding: 12px; }
+.tz-input:focus { border-color: var(--tz-orange); box-shadow: none; }
+.tz-link { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.75rem; }
+.tz-dot-red { background: #ff5f56; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.tz-dot-yellow { background: #ffbd2e; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.tz-dot-green { background: #27c93f; width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+</style>
