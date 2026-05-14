@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Quản trị hệ thống - TechZone</title>
-    <base href="/TZ/public/"> 
+    <base href="/"> 
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -48,16 +48,23 @@
                             <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'order') !== false ? 'active' : '' ?>">
                                 <a href="public_entry.php?url=admin-orders"><i class="ti-receipt"></i> <span>Quản lý Đơn hàng</span></a>
                             </li>
-                            <!-- Dưới Quản lý Đơn Hàng -->
-<li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'admin/about') !== false ? 'active' : '' ?>">
-    <a href="public_entry.php?url=admin/about-edit"><i class="ti-info-alt"></i> <span>Quản lý Giới thiệu</span></a>
-</li>
-<li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'admin/faq') !== false ? 'active' : '' ?>">
-    <a href="public_entry.php?url=admin/faq"><i class="ti-help-alt"></i> <span>Quản lý Hỏi đáp</span></a>
-</li>
                             
-                            <li><a href="#"><i class="ti-write"></i> <span>Quản lý Tin tức</span></a></li>
-                            <li><a href="#"><i class="ti-comments"></i> <span>Quản lý Bình luận</span></a></li>
+                            <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'admin/about') !== false ? 'active' : '' ?>">
+                                <a href="public_entry.php?url=admin/about-edit"><i class="ti-info-alt"></i> <span>Quản lý Giới thiệu</span></a>
+                            </li>
+                            
+                            <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'admin/faq') !== false ? 'active' : '' ?>">
+                                <a href="public_entry.php?url=admin/faq"><i class="ti-help-alt"></i> <span>Quản lý Hỏi đáp</span></a>
+                            </li>
+                            
+                            <!-- 2 MỤC TIN TỨC VÀ BÌNH LUẬN ĐÃ ĐƯỢC CHUẨN HÓA LOGIC -->
+                            <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'news') !== false ? 'active' : '' ?>">
+                                <a href="public_entry.php?url=admin/news"><i class="ti-write"></i> <span>Quản lý Tin tức</span></a>
+                            </li>
+                            <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'comment') !== false ? 'active' : '' ?>">
+                                <a href="public_entry.php?url=admin/comments"><i class="ti-comments"></i> <span>Quản lý Bình luận</span></a>
+                            </li>
+                            
                             <li class="mt-5"><a href="public_entry.php?url=home"><i class="ti-share-alt text-danger"></i> <span>Về trang Web khách</span></a></li>
                         </ul>
                     </nav>

@@ -1,31 +1,23 @@
 <?php
-class AdminCommentController extends BaseController {
+require_once __DIR__ . '/../core/BaseController.php';
+require_once __DIR__ . '/../models/CommentModel.php';
 
-    public function index() {
-        if ($_SESSION['role'] !== 'admin') { header('Location: /login'); exit; }
-        $model = new CommentModel();
-        $page  = max(1, (int)($_GET['page'] ?? 1));
-        $this->view('admin/comments/index', [
-            'comments'   => $model->getAllAdmin($page, 10),
-            'totalPages' => ceil($model->countAll() / 10),
-            'page'       => $page,
-        ]);
+class AdminCommentController extends BaseController {
+    private $commentModel;
+    public function __construct($db) {
+        parent::__construct($db);
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') { header('Location: public_entry.php?url=login'); exit(); }
+        $this->commentModel = new CommentModel($this->db);
     }
 
-    public function updateStatus() {
-        if ($_SESSION['role'] !== 'admin') exit;
-        $id     = (int)($_POST['id'] ?? 0);
-        $status = $_POST['status'] ?? '';
-        if (in_array($status, ['approved','pending','spam'])) {
-            (new CommentModel())->updateStatus($id, $status);
-        }
-        header('Location: /admin/comments'); exit;
+    public function index() {
+        $keyword = $_GET['search'] ?? '';
+        $comments = !empty($keyword) ? $this->commentModel->search($keyword) : $this->commentModel->getAllAdmin();
+        include '../app/views/admin/comments/index.php'; // Ép gọi thẳng View để tích hợp Srtdash
     }
 
     public function delete() {
-        if ($_SESSION['role'] !== 'admin') exit;
-        $id = (int)($_POST['id'] ?? 0);
-        (new CommentModel())->delete($id);
-        header('Location: /admin/comments'); exit;
+        if (isset($_GET['id'])) $this->commentModel->delete($_GET['id']);
+        header('Location: public_entry.php?url=admin/comments'); exit();
     }
 }

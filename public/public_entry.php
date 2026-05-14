@@ -54,12 +54,7 @@ switch ($url) {
         require_once '../app/controllers/AboutController.php';
         (new AboutController($db))->index();
         break;
-
-    case 'news':
-        require_once '../app/controllers/NewsController.php';
-        (new NewsController($db))->index();
-        break;
-
+        
     case 'contact':
         require_once '../app/controllers/ContactController.php';
         (new ContactController($db))->index();
@@ -201,6 +196,45 @@ switch ($url) {
         require_once '../app/controllers/AdminDashboardController.php';
         $adminDash = new AdminDashboardController($db);
         $adminDash->index();
+        break;
+    // BỔ SUNG VÀO KHỐI ADMIN
+    case 'admin/news':
+    case 'admin/news/create':
+    case 'admin/news/store':
+    case 'admin/news/edit':
+    case 'admin/news/update':
+    case 'admin/news/delete':
+        require_once '../app/controllers/AdminNewsController.php';
+        $newsAdmin = new AdminNewsController($db);
+        if ($url === 'admin/news') $newsAdmin->index();
+        elseif ($url === 'admin/news/create') $newsAdmin->create();
+        elseif ($url === 'admin/news/store') $newsAdmin->store();
+        elseif ($url === 'admin/news/edit') $newsAdmin->edit();
+        elseif ($url === 'admin/news/update') $newsAdmin->update();
+        elseif ($url === 'admin/news/delete') $newsAdmin->delete();
+        break;
+
+    case 'admin/comments':
+    case 'admin/comments/delete':
+        require_once '../app/controllers/AdminCommentController.php';
+        $commentAdmin = new AdminCommentController($db);
+        if ($url === 'admin/comments') $commentAdmin->index();
+        elseif ($url === 'admin/comments/delete') $commentAdmin->delete();
+        break;
+
+    case 'news/comment':
+        require_once '../app/controllers/NewsController.php';
+        (new NewsController($db))->addComment();
+        break;
+    case 'news':
+    case 'news/detail':
+        require_once '../app/controllers/NewsController.php';
+        $newsApp = new NewsController($db);
+        if ($url === 'news') {
+            $newsApp->index();
+        } elseif ($url === 'news/detail') {
+            $newsApp->detail();
+        }
         break;
     // =====================================
     // 5. TRANG 404 (KHÔNG TÌM THẤY URL)
