@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS products (
     brand VARCHAR(50) DEFAULT 'OEM',
     name VARCHAR(255) NOT NULL,
     description TEXT,
-    price DECIMAL(10,2) NOT NULL DEFAULT 0,
-    old_price DECIMAL(10,2) DEFAULT 0,
+    price DECIMAL(15,2) NOT NULL DEFAULT 0,
+    old_price DECIMAL(15,2) DEFAULT 0,
     installment_info VARCHAR(50),
     thumbnail TEXT,
     stock_count INT DEFAULT 100,
@@ -124,11 +124,15 @@ CREATE TABLE IF NOT EXISTS faqs (
 -- ==============================================
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    order_code VARCHAR(20) UNIQUE,
     user_id INT NOT NULL,
     customer_name VARCHAR(255),
     customer_phone VARCHAR(20),
     customer_address TEXT,
-    total_price DECIMAL(10,2) DEFAULT 0,
+    total_price DECIMAL(15,2) DEFAULT 0,
+    original_amount DECIMAL(15,2) DEFAULT 0,
+    discount_amount DECIMAL(15,2) DEFAULT 0,
+    voucher_code VARCHAR(50) NULL,
     status ENUM('pending', 'processing', 'completed', 'cancelled') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -139,9 +143,60 @@ CREATE TABLE IF NOT EXISTS order_details (
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     quantity INT DEFAULT 1,
-    price DECIMAL(10,2) NOT NULL,
+    price DECIMAL(15,2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+);
+
+-- ==============================================
+-- 10. BẢNG MÃ GIẢM GIÁ (VOUCHERS) & VÍ VOUCHER
+-- ==============================================
+CREATE TABLE IF NOT EXISTS vouchers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    discount_type ENUM('percent', 'fixed') NOT NULL,
+    discount_value DECIMAL(15,2) NOT NULL,
+    min_order_value DECIMAL(15,2) DEFAULT 0,
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    usage_limit INT DEFAULT 1,
+    used_count INT DEFAULT 0,
+    target_type ENUM('all', 'category', 'product') DEFAULT 'all',
+    target_ids VARCHAR(255) NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_vouchers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    voucher_id INT NOT NULL,
+    is_used TINYINT(1) DEFAULT 0,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE CASCADE
+);
+
+-- ==============================================
+-- 11. BẢNG ĐỔI / TRẢ HÀNG & THÔNG BÁO
+-- ==============================================
+CREATE TABLE IF NOT EXISTS return_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    reason TEXT NOT NULL,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL, 
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ==============================================
@@ -153,35 +208,49 @@ INSERT INTO users (fullname, email, password, role, status, address) VALUES
 ('Quản trị viên', 'admin@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 1, 'Hà Nội'),
 ('Khách hàng', 'user@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'client', 1, 'Hồ Chí Minh');
 
--- 2. Danh mục
+-- 2. Danh mục (Bổ sung thêm danh mục từ 5->8 để chứa sản phẩm mới)
 INSERT INTO categories (id, name, slug) VALUES 
 (1, 'Điện thoại', 'dien-thoai'), 
 (2, 'Laptop', 'laptop'), 
 (3, 'Đồng hồ thông minh', 'dong-ho'), 
-(4, 'Phụ kiện', 'phu-kien');
+(4, 'Phụ kiện', 'phu-kien'),
+(5, 'Máy tính bảng', 'may-tinh-bang'),
+(6, 'Thiết bị âm thanh', 'thiet-bi-am-thanh'),
+(7, 'Máy ảnh & Camera', 'may-anh-camera'),
+(8, 'Nhà thông minh', 'nha-thong-minh');
 
--- 3. Sản phẩm (20 sản phẩm công nghệ)
-INSERT INTO products (category_id, brand, name, description, price, old_price, installment_info, thumbnail, stock_count, sold_count) VALUES
-(1, 'Apple', 'iPhone 15 Pro Max 256GB Titan', 'Chip A17 Pro mạnh mẽ, camera zoom quang 5x.', 29990000, 34990000, 'Giảm 2 triệu', 'https://images.unsplash.com/photo-1696446701796-da61225697cc?w=500,https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500', 50, 120),
-(1, 'Samsung', 'Samsung Galaxy S24 Ultra 5G', 'Tích hợp Galaxy AI, khung viền Titanium.', 31990000, 33990000, 'Thu cũ đổi mới', 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=500', 30, 85),
-(1, 'Apple', 'iPhone 14 Pro 128GB', 'Dynamic Island ấn tượng.', 23490000, 26990000, NULL, 'https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?w=500', 15, 200),
-(1, 'Xiaomi', 'Xiaomi 14 5G', 'Camera Leica cao cấp, chip Snapdragon 8 Gen 3.', 20990000, 22990000, NULL, 'https://images.unsplash.com/photo-1598327105666-5b89351cb31b?w=500', 40, 45),
-(1, 'Oppo', 'OPPO Find N3 Flip', 'Thiết kế gập thời trang, màn hình phụ lớn.', 21500000, 22990000, NULL, 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500', 20, 15),
-(2, 'Apple', 'MacBook Air M3 13 inch', 'Laptop mỏng nhẹ, pin 18h.', 27990000, 29990000, 'Tặng túi chống sốc', 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=500', 40, 210),
-(2, 'Dell', 'Dell XPS 15 9530', 'Màn hình OLED viền siêu mỏng.', 45000000, 48000000, 'Tặng chuột', 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=500', 20, 45),
-(2, 'Asus', 'ASUS ROG Strix G16', 'Laptop Gaming hiệu năng cao, tản nhiệt tốt.', 35990000, 38990000, NULL, 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500', 25, 60),
-(2, 'HP', 'HP Envy x360', 'Xoay gập 360 độ tiện lợi.', 22490000, 24000000, NULL, 'https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?w=500', 10, 30),
-(2, 'Lenovo', 'Lenovo ThinkPad X1 Carbon', 'Đẳng cấp doanh nhân.', 39900000, 42000000, NULL, 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500', 15, 25),
-(3, 'Apple', 'Apple Watch Series 9', 'Cảm biến nhịp tim, đo SpO2.', 9990000, 11000000, NULL, 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=500', 100, 300),
-(3, 'Samsung', 'Galaxy Watch 6 Classic', 'Vòng xoay vật lý huyền thoại.', 7490000, 8990000, NULL, 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=500', 60, 150),
-(3, 'Garmin', 'Garmin Fenix 7 Pro', 'Đồng hồ thể thao chuyên nghiệp.', 21990000, 22500000, NULL, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500', 30, 40),
-(4, 'Apple', 'AirPods Pro Gen 2', 'Chống ồn chủ động xuất sắc.', 5890000, 6500000, NULL, 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500', 200, 500),
-(4, 'Sony', 'Sony WH-1000XM5', 'Tai nghe chụp tai cách âm tốt nhất.', 7990000, 8500000, NULL, 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500', 45, 120),
-(4, 'Anker', 'Pin sạc dự phòng Anker 20000mAh', 'Sạc nhanh 20W nhỏ gọn.', 950000, 1200000, NULL, 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=500', 150, 400),
-(4, 'Logitech', 'Chuột Logitech MX Master 3S', 'Chuột công thái học cao cấp.', 2450000, 2700000, NULL, 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=500', 80, 210),
-(1, 'Apple', 'iPhone 13 128GB', 'Lựa chọn quốc dân.', 15990000, 18990000, NULL, 'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=500', 120, 800),
-(2, 'Acer', 'Acer Nitro 5', 'Laptop gaming giá rẻ.', 19990000, 22990000, NULL, 'https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=500', 55, 180),
-(4, 'JBL', 'Loa Bluetooth JBL Flip 6', 'Âm trầm mạnh mẽ, chống nước.', 2690000, 2990000, NULL, 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500', 90, 250);
+-- 3. Sản phẩm (30 sản phẩm công nghệ từ file mới)
+INSERT INTO products (name, category_id, brand, price, old_price, stock_count, description, thumbnail) VALUES
+('iPhone 15 Pro Max 256GB', 1, 'Apple', 29990000, 34990000, 50, 'Titanium siêu nhẹ, chip A17 Pro.', 'assets/uploads/products/1.png'),
+('Samsung Galaxy S24 Ultra', 1, 'Samsung', 31990000, 33990000, 40, 'Galaxy AI đỉnh cao.', 'assets/uploads/products/2.png'),
+('MacBook Air M2 13 inch', 2, 'Apple', 24990000, 27990000, 30, 'Laptop mỏng nhẹ, pin 18h.', 'assets/uploads/products/3.png'),
+('Laptop Gaming Acer Nitro 5', 2, 'Acer', 21990000, 23990000, 25, 'RTX 3050 chiến game cực mượt.', 'assets/uploads/products/4.png'),
+('Apple Watch Series 9', 3, 'Apple', 9990000, 11990000, 60, 'Màn hình siêu sáng, chạm 2 lần.', 'assets/uploads/products/5.png'),
+('Samsung Galaxy Watch 6', 3, 'Samsung', 7490000, 8990000, 45, 'Theo dõi sức khỏe toàn diện.', 'assets/uploads/products/6.png'),
+('Tai nghe AirPods Pro 2', 6, 'Apple', 5890000, 6990000, 100, 'Chống ồn chủ động ANC.', 'assets/uploads/products/7.png'),
+('Sony WH-1000XM5', 6, 'Sony', 7990000, 8490000, 20, 'Tai nghe over-ear chống ồn tốt nhất.', 'assets/uploads/products/8.png'),
+('iPad Pro 11 inch M2', 5, 'Apple', 21490000, 23990000, 35, 'Máy tính bảng siêu mạnh.', 'assets/uploads/products/9.png'),
+('Samsung Galaxy Tab S9', 5, 'Samsung', 19990000, 21990000, 40, 'Màn hình Dynamic AMOLED 2X.', 'assets/uploads/products/10.png'),
+('Máy ảnh Sony Alpha A6700', 7, 'Sony', 34990000, 36990000, 15, 'Lấy nét AI, quay 4K.', 'assets/uploads/products/11.png'),
+('Canon EOS R50', 7, 'Canon', 31990000, 33990000, 10, 'Nhỏ gọn, mạnh mẽ cho Vlogger.', 'assets/uploads/products/12.png'),
+('Robot Hút Bụi Roborock S8', 8, 'Roborock', 15990000, 18990000, 20, 'Lực hút mạnh, giặt giẻ tự động.', 'assets/uploads/products/13.png'),
+('Camera An Ninh Xiaomi C300', 8, 'Xiaomi', 950000, 1200000, 150, 'Quay 2K sắc nét, đàm thoại 2 chiều.', 'assets/uploads/products/14.png'),
+('Sạc Dự Phòng Anker 20000mAh', 4, 'Anker', 950000, 1250000, 200, 'Sạc nhanh PD 20W.', 'assets/uploads/products/15.png'),
+('Chuột Logitech MX Master 3S', 4, 'Logitech', 2450000, 2800000, 80, 'Chuột văn phòng đỉnh nhất.', 'assets/uploads/products/16.png'),
+('Bàn phím cơ Keychron K8 Pro', 4, 'Keychron', 2290000, 2590000, 40, 'Custom switch, không dây.', 'assets/uploads/products/17.png'),
+('Oppo Z Flip 5', 1, 'Oppo', 25990000, 28990000, 20, 'Gập sành điệu.', 'assets/uploads/products/18.png'),
+('Xiaomi 14 Pro', 1, 'Xiaomi', 23990000, 25990000, 25, 'Leica camera.', 'assets/uploads/products/19.png'),
+('Laptop Asus Predator', 2, 'Asus', 35990000, 39990000, 10, 'Gaming cấu hình khủng.', 'assets/uploads/products/20.png'),
+('Garmin Fenix 7 Pro', 3, 'Garmin', 21990000, 23990000, 15, 'Pin vô đối, GPS chuẩn.', 'assets/uploads/products/21.png'),
+('Đồng hồ Amazfit 4', 3, 'Amazfit', 4500000, 5000000, 40, 'Thể thao chuyên dụng.', 'assets/uploads/products/22.png'),
+('Loa Bluetooth JBL Flip 6', 4, 'JBL', 2690000, 2990000, 120, 'Chống nước IP67.', 'assets/uploads/products/23.png'),
+('Microphone Rode NT', 4, 'Rode', 3500000, 4000000, 30, 'Thu âm chuyên nghiệp.', 'assets/uploads/products/24.png'),
+('Kindle Paperwhite 5', 5, 'Amazon', 3500000, 4000000, 50, 'Đọc sách không mỏi mắt.', 'assets/uploads/products/25.png'),
+('iPad Mini 6', 5, 'Apple', 12990000, 14990000, 60, 'Nhỏ gọn cầm tay.', 'assets/uploads/products/26.png'),
+('Tai nghe Marshall', 6, 'Marshall', 4500000, 5500000, 35, 'Classic design.', 'assets/uploads/products/27.png'),
+('Gopro Hero 12', 7, 'Gopro', 9990000, 11500000, 25, 'Action camera.', 'assets/uploads/products/28.png'),
+('Bóng Đèn Philips Hue', 8, 'Philips', 1200000, 1500000, 100, 'Đèn thông minh.', 'assets/uploads/products/29.png'),
+('Ổ Cắm Thông Minh Tuya', 8, 'Tuya', 350000, 500000, 200, 'Điều khiển qua WiFi.', 'assets/uploads/products/30.png');
 
 -- 4. Tin tức & Bài viết (Chỉ giữ lại của TechZone)
 INSERT INTO news (title, badge, category, content, image) VALUES
@@ -196,7 +265,7 @@ INSERT INTO comments (user_id, news_id, product_id, content, rating) VALUES
 INSERT INTO page_contents (page_key, section_name, content_value) VALUES 
 ('about_history', 'Tiểu sử & Hình thành', 'TechZone là hệ thống bán lẻ công nghệ hàng đầu...'),
 ('about_mission', 'Sứ mệnh & Tầm nhìn', 'Mang công nghệ đỉnh cao tới mọi nhà...'),
-('about_goal', 'Mục tiêu chiến lược', 'Phủ sóng 63 tỉnh thành...');
+('about_goal', 'Mục tiêu chiến lược', 'Phủ sóng 34 tỉnh thành...');
 
 -- 7. FAQs
 INSERT INTO faqs (title, question, answer, status) VALUES 

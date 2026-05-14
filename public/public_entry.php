@@ -192,6 +192,16 @@ switch ($url) {
         elseif ($url === 'admin/about-update') $adminPageApp->updateAbout();
         break;
 
+    // Dashboard Tổng quan
+    case 'admin-dashboard':
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { 
+            header('Location: public_entry.php?url=home'); 
+            exit; 
+        }
+        require_once '../app/controllers/AdminDashboardController.php';
+        $adminDash = new AdminDashboardController($db);
+        $adminDash->index();
+        break;
     // =====================================
     // 5. TRANG 404 (KHÔNG TÌM THẤY URL)
     // =====================================

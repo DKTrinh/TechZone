@@ -20,19 +20,10 @@ class FaqModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
- * Thêm mới một câu hỏi vào hệ thống
- * Mặc định câu hỏi mới từ khách sẽ có status là 'pending' và chưa có answer
- *
- */
+    // Thêm mới một câu hỏi vào hệ thống
     public function insert($title, $question, $answer = null, $status = 'pending') {
-        // 1. Chuẩn bị câu lệnh SQL
         $sql = "INSERT INTO faqs (title, question, answer, status) VALUES (?, ?, ?, ?)";
-        
-        // 2. Sử dụng prepare để bảo mật PDO
         $stmt = $this->db->prepare($sql);
-        
-        // 3. Thực thi và trả về kết quả (true/false)
         return $stmt->execute([$title, $question, $answer, $status]);
     }
 

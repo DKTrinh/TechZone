@@ -78,13 +78,17 @@ class ProductModel {
         if (!empty($categoryId)) $sql .= " AND p.category_id = :cat_id";
         if (!empty($brand)) $sql .= " AND p.brand = :brand";
         
+        // MẸO: (p.stock_count = 0) sẽ trả về 1 nếu hết hàng, 0 nếu còn hàng. 
+        // ASC sẽ ưu tiên số 0 (còn hàng) nổi lên trước, số 1 (hết hàng) chìm xuống sau.
+        $orderBy = " ORDER BY (p.stock_count = 0) ASC, ";
+        
         switch ($sort) {
-            case 'price_asc': $sql .= " ORDER BY p.price ASC"; break;
-            case 'price_desc': $sql .= " ORDER BY p.price DESC"; break;
-            case 'popular': $sql .= " ORDER BY p.sold_count DESC"; break;
+            case 'price_asc': $sql .= $orderBy . "p.price ASC"; break;
+            case 'price_desc': $sql .= $orderBy . "p.price DESC"; break;
+            case 'popular': $sql .= $orderBy . "p.sold_count DESC"; break;
             case 'newest': 
             default: 
-                $sql .= " ORDER BY p.id DESC"; break;
+                $sql .= $orderBy . "p.id DESC"; break;
         }
         $sql .= " LIMIT :limit OFFSET :offset";
         
@@ -95,7 +99,6 @@ class ProductModel {
         
         if (!empty($categoryId)) $stmt->bindValue(':cat_id', $categoryId, PDO::PARAM_INT);
         if (!empty($brand)) $stmt->bindValue(':brand', $brand, PDO::PARAM_STR);
-        
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
         

@@ -87,10 +87,18 @@
                                     <small class="text-muted text-decoration-line-through"><?= number_format($p['old_price'], 0, ',', '.') ?>đ</small>
                                 <?php endif; ?>
                             </div>
-                            <div class="d-flex gap-2 mt-3">
-                                <button onclick="addCartAjax(<?= $p['id'] ?>)" class="btn btn-outline-danger w-50 fw-bold"><i class="fas fa-cart-plus"></i></button>
-                                <button onclick="buyNow(<?= $p['id'] ?>)" class="btn btn-danger w-50 fw-bold">Mua</button>
-                            </div>
+                            <?php if($p['stock_count'] > 0): ?>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button onclick="addCartAjax(<?= $p['id'] ?>)" class="btn btn-outline-danger w-50 fw-bold"><i class="fas fa-cart-plus"></i></button>
+                                    <button onclick="buyNow(<?= $p['id'] ?>)" class="btn btn-danger w-50 fw-bold">Mua</button>
+                                </div>
+                            <?php else: ?>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-secondary w-100 fw-bold" disabled>
+                                        <i class="fas fa-box-open me-2"></i> Đã hết hàng
+                                    </button>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

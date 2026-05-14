@@ -12,9 +12,7 @@ class AdminUserController {
         $total = $this->userModel->countUsers();
         $totalPages = ceil($total / $limit);
         
-        require_once '../app/views/layouts/header.php';
-        include "../app/views/admin/users/index.php";
-        require_once '../app/views/layouts/footer.php';
+        require_once '../app/views/admin/users/index.php';
     }
 
     public function store() {

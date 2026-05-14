@@ -97,12 +97,12 @@ if ($isLoggedIn) {
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
                         <?php if($userRole === 'admin'): ?>
-                            <li><a class="dropdown-item" href="public_entry.php?url=users"><i class="fas fa-cogs me-2"></i> Quản trị hệ thống</a></li>
+                            <li><a class="dropdown-item" href="public_entry.php?url=admin-dashboard"><i class="fas fa-cogs me-2"></i> Quản trị hệ thống</a></li>
                         <?php endif; ?>
                         <li><a class="dropdown-item" href="public_entry.php?url=profile"><i class="fas fa-user-circle me-2"></i> Hồ sơ cá nhân</a></li>
                         <li><a class="dropdown-item" href="public_entry.php?url=my-orders"><i class="fas fa-clipboard-list me-2"></i> Lịch sử đơn hàng</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger fw-bold" href="public_entry.php?url=logout"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
+                        <li><a class="dropdown-item text-danger fw-bold" href="javascript:void(0)" onclick="confirmLogout()"><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a></li>
                     </ul>
                 </div>
             <?php endif; ?>
@@ -128,10 +128,11 @@ if ($isLoggedIn) {
             <li><a href="public_entry.php?url=products&category=2">Laptop</a></li>
             <li><a href="public_entry.php?url=products&category=3">Đồng hồ thông minh</a></li>
             <li><a href="public_entry.php?url=products&category=4">Phụ kiện</a></li>
-            <li><a href="public_entry.php?url=products">Máy tính bảng</a></li>
-            <li><a href="public_entry.php?url=products">Tai nghe</a></li>
-            <li><a href="public_entry.php?url=products">Máy ảnh</a></li>
-            <li><a href="public_entry.php?url=products">Smart Home</a></li>
+            <!-- Đã bổ sung ID cho 4 danh mục dưới -->
+            <li><a href="public_entry.php?url=products&category=5">Máy tính bảng</a></li>
+            <li><a href="public_entry.php?url=products&category=6">Tai nghe</a></li>
+            <li><a href="public_entry.php?url=products&category=7">Máy ảnh</a></li>
+            <li><a href="public_entry.php?url=products&category=8">Smart Home</a></li>
         </ul>
     </div>
 </div>
@@ -241,6 +242,23 @@ if ($isLoggedIn) {
             f.style.transition = 'background-color 0.3s';
             f.style.backgroundColor = '#e0f2fe';
             setTimeout(() => { f.style.backgroundColor = '#ffffff'; }, 400);
+        });
+    }
+
+    function confirmLogout() {
+        Swal.fire({
+            title: 'Xác nhận đăng xuất?',
+            text: "Bạn có chắc chắn muốn thoát khỏi hệ thống?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#e74c3c',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Đăng xuất',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = 'public_entry.php?url=logout';
+            }
         });
     }
 </script>

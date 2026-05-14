@@ -9,19 +9,19 @@ class AdminProductController {
     }
 
     public function index() {
-        // Tái sử dụng hàm phân trang đã có sẵn ở ProductModel
         $limit = 10;
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $offset = ($page - 1) * $limit;
         
-        $products = $this->productModel->getProductsPaginated($limit, $offset, '', '', '', 0, 999999999, 'newest');
-        $total = $this->productModel->getTotalProducts();
+        $keyword = trim($_GET['q'] ?? '');
+        $products = $this->productModel->getProductsPaginated($limit, $offset, $keyword, '', '', 0, 999999999, 'newest');
+        $total = $this->productModel->getTotalProducts($keyword);
         $totalPages = ceil($total / $limit);
         $categories = $this->productModel->getAllCategories();
-
-        require_once '../app/views/layouts/header.php';
+        $brands = $this->productModel->getAllBrands();
+        
+        // CHỈ GỌI DUY NHẤT FILE VIEW NÀY (Vì bên trong view đã có sẵn admin_header và admin_footer rồi)
         require_once '../app/views/admin/products/index.php';
-        require_once '../app/views/layouts/footer.php';
     }
 
     public function store() {

@@ -60,24 +60,28 @@ $discountPct = ($product['old_price'] > $product['price']) ? round((($product['o
             <p class="text-secondary fs-5 mb-4" style="line-height: 1.8;"><?= nl2br(htmlspecialchars($product['description'])) ?></p>
             
             <div class="d-flex flex-wrap gap-3 align-items-center mt-5">
-                
-                <div class="input-group shadow-sm" style="width: 140px; height: 50px;">
-                    <button class="btn btn-outline-secondary px-3 fw-bold" type="button" onclick="changeQty(-1)">-</button>
-                    <input type="text" class="form-control text-center fw-bold fs-5 bg-white" id="qty_detail" value="1" readonly>
-                    <button class="btn btn-outline-secondary px-3 fw-bold" type="button" onclick="changeQty(1)">+</button>
-                </div>
-                
-                <button onclick="addCartAjax(<?= $product['id'] ?>)" class="btn btn-outline-danger flex-grow-1 fw-bold fs-5 shadow-sm" style="height: 50px;">
-                    <i class="fas fa-cart-plus me-2"></i> THÊM GIỎ HÀNG
-                </button>
-
-                <form action="public_entry.php?url=buy-now" method="POST" class="flex-grow-1 m-0" onsubmit="buyNowAction(event)">
-                    <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
-                    <input type="hidden" name="quantity" id="buy_now_qty" value="1">
-                    <button type="submit" class="btn btn-danger w-100 fw-bold fs-5 shadow" style="height: 50px;">
-                        MUA NGAY
+                <?php if($product['stock_count'] > 0): ?>
+                    <div class="input-group shadow-sm" style="width: 140px; height: 50px;">
+                        <button class="btn btn-outline-secondary px-3 fw-bold" type="button" onclick="changeQty(-1)">-</button>
+                        <input type="text" class="form-control text-center fw-bold fs-5 bg-white" id="qty_detail" value="1" readonly>
+                        <button class="btn btn-outline-secondary px-3 fw-bold" type="button" onclick="changeQty(1)">+</button>
+                    </div>
+                    
+                    <button onclick="addCartAjax(<?= $product['id'] ?>)" class="btn btn-outline-danger flex-grow-1 fw-bold fs-5 shadow-sm" style="height: 50px;">
+                        <i class="fas fa-cart-plus me-2"></i> THÊM GIỎ HÀNG
                     </button>
-                </form>
+                    <form action="public_entry.php?url=buy-now" method="POST" class="flex-grow-1 m-0" onsubmit="buyNowAction(event)">
+                        <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
+                        <input type="hidden" name="quantity" id="buy_now_qty" value="1">
+                        <button type="submit" class="btn btn-danger w-100 fw-bold fs-5 shadow" style="height: 50px;">
+                            MUA NGAY
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <button class="btn btn-secondary w-100 fw-bold fs-4 shadow-sm text-uppercase" style="height: 60px; cursor: not-allowed;" disabled>
+                        <i class="fas fa-box-open me-2"></i> Sản phẩm tạm thời hết hàng
+                    </button>
+                <?php endif; ?>
             </div>
             
             <div class="alert alert-success mt-4 border-0 shadow-sm"><i class="fas fa-truck-fast me-2"></i> Miễn phí giao hàng toàn quốc cho đơn từ 1.000.000đ</div>

@@ -40,9 +40,7 @@ class AdminOrderController {
             }
         }
 
-        require_once '../app/views/layouts/header.php';
         require_once '../app/views/admin/orders/index.php'; 
-        require_once '../app/views/layouts/footer.php';
     }
 
     public function updateStatus() {
