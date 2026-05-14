@@ -90,9 +90,10 @@ CREATE TABLE IF NOT EXISTS contacts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fullname VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
     subject VARCHAR(255),
     message TEXT NOT NULL,
-    status ENUM('pending', 'resolved') DEFAULT 'pending',
+    status ENUM('unread', 'read', 'replied') DEFAULT 'unread',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -252,9 +253,9 @@ INSERT INTO products (name, category_id, brand, price, old_price, stock_count, d
 ('Bóng Đèn Philips Hue', 8, 'Philips', 1200000, 1500000, 100, 'Đèn thông minh.', 'assets/uploads/products/29.png'),
 ('Ổ Cắm Thông Minh Tuya', 8, 'Tuya', 350000, 500000, 200, 'Điều khiển qua WiFi.', 'assets/uploads/products/30.png');
 
--- 4. Tin tức & Bài viết (Chỉ giữ lại của TechZone)
+-- 4. Tin tức & Bài viết
 INSERT INTO news (title, badge, category, content, image) VALUES
-('Apple ra mắt chip M3', 'Mới nhất', 'Công nghệ', 'Chip M3 mới của Apple mang lại hiệu năng vượt trội và tiết kiệm pin đáng kể cho các dòng Macbook thế hệ mới.', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8');
+('Apple ra mắt chip M3', 'Mới nhất', 'Công nghệ', 'Chip M3 mới của Apple mang lại hiệu năng vượt trội và tiết kiệm pin đáng kể cho các dòng Macbook thế hệ mới.', '31.png');
 
 -- 5. Bình luận mẫu
 INSERT INTO comments (user_id, news_id, product_id, content, rating) VALUES

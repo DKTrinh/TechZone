@@ -124,7 +124,7 @@
     </div>
 </div>
 
-<!-- CSS cho phần contact (nếu chưa có trong file CSS chính) -->
+<!-- CSS cho phần contact -->
 <style>
 /* Contact Page Styles */
 .contact-hero {
@@ -325,7 +325,12 @@ textarea.form-control {
     width: 100%;
 }
 
-.btn-submit:hover {
+.btn-submit:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+}
+
+.btn-submit:hover:not(:disabled) {
     background: #0e5545;
     transform: translateY(-2px);
 }
@@ -399,92 +404,96 @@ textarea.form-control {
 }
 </style>
 
-<!-- JavaScript xử lý form -->
+<!-- JavaScript xử lý form gọi API -->
 <script>
-// Xử lý form liên hệ
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contactForm');
+    const submitBtn = document.querySelector('.btn-submit');
     
-    // Lấy giá trị
-    const fullname = document.getElementById('fullname').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const subject = document.getElementById('subject').value.trim();
-    const message = document.getElementById('message').value.trim();
-    
-    // Ẩn alert cũ
-    document.getElementById('alertSuccess').classList.remove('show');
-    document.getElementById('alertError').classList.remove('show');
-    
-    // Validate
-    if (fullname === '') {
-        showError('Vui lòng nhập họ tên');
-        return;
-    }
-    
-    if (email === '') {
-        showError('Vui lòng nhập email');
-        return;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showError('Email không hợp lệ. Vui lòng nhập đúng định dạng (example@email.com)');
-        return;
-    }
-    
-    if (message === '') {
-        showError('Vui lòng nhập nội dung tin nhắn');
-        return;
-    }
-    
-    // Hiển thị thông báo thành công
-    showSuccess();
-    
-    // Reset form
-    document.getElementById('contactForm').reset();
-    
-    // Log thông tin ra console (để kiểm tra)
-    console.log('Thông tin liên hệ:', {
-        fullname: fullname,
-        email: email,
-        phone: phone,
-        subject: subject,
-        message: message,
-        time: new Date().toLocaleString('vi-VN')
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // 1. Lấy dữ liệu
+        const fullname = document.getElementById('fullname').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const subject = document.getElementById('subject').value.trim();
+        const message = document.getElementById('message').value.trim();
+        
+        // 2. Ẩn các thông báo cũ
+        document.getElementById('alertSuccess').classList.remove('show');
+        document.getElementById('alertError').classList.remove('show');
+        
+        // 3. Validate cơ bản ở Frontend
+        if (fullname === '') return showError('Vui lòng nhập họ tên');
+        if (email === '') return showError('Vui lòng nhập email');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) return showError('Email không hợp lệ. Vui lòng nhập đúng định dạng (example@email.com)');
+        if (message === '') return showError('Vui lòng nhập nội dung tin nhắn');
+        
+        // 4. Khóa nút bấm và tạo hiệu ứng loading
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Đang gửi...';
+
+        try {
+            // 5. Gọi API Gửi dữ liệu về Server
+            const response = await fetch('public_entry.php?url=contact/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    fullname: fullname,
+                    email: email,
+                    phone: phone,
+                    subject: subject,
+                    message: message
+                })
+            });
+
+            // Parse JSON từ PHP trả về
+            const result = await response.json();
+
+            if (result.success) {
+                showSuccess(); // Hiện khung xanh lá báo thành công
+                form.reset();  // Chỉ xóa các ô khi đã gửi lọt vào database
+            } else {
+                showError(result.message || 'Gửi thất bại, vui lòng thử lại');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gửi:', error);
+            showError('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+        } finally {
+            // Mở khóa nút bấm trở lại
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
     });
-});
 
-function showError(message) {
-    const alertDiv = document.getElementById('alertError');
-    const errorSpan = document.getElementById('errorMessage');
-    errorSpan.textContent = message;
-    alertDiv.classList.add('show');
-    
-    // Tự động ẩn sau 5 giây
-    setTimeout(() => {
-        alertDiv.classList.remove('show');
-    }, 5000);
-}
+    // Helper: Hàm hiển thị lỗi màu đỏ
+    function showError(message) {
+        const alertDiv = document.getElementById('alertError');
+        document.getElementById('errorMessage').textContent = message;
+        alertDiv.classList.add('show');
+        setTimeout(() => alertDiv.classList.remove('show'), 5000);
+    }
 
-function showSuccess() {
-    const alertDiv = document.getElementById('alertSuccess');
-    alertDiv.classList.add('show');
-    
-    // Tự động ẩn sau 5 giây
-    setTimeout(() => {
-        alertDiv.classList.remove('show');
-    }, 5000);
-    
-    // Cuộn lên đầu form
-    document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+    // Helper: Hàm hiển thị thành công màu xanh
+    function showSuccess() {
+        const alertDiv = document.getElementById('alertSuccess');
+        alertDiv.classList.add('show');
+        setTimeout(() => alertDiv.classList.remove('show'), 5000);
+        document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-// Hiệu ứng click cho các store item
-document.querySelectorAll('.store-item').forEach(item => {
-    item.addEventListener('click', function() {
-        const storeName = this.querySelector('h4').innerText;
-        alert(`🏪 ${storeName}\nThông tin chi tiết:\n${this.innerText}`);
+    // Hiệu ứng click cho các store item
+    document.querySelectorAll('.store-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const storeName = this.querySelector('h4').innerText;
+            alert(`🏪 ${storeName}\nThông tin chi tiết:\n${this.innerText}`);
+        });
     });
 });
 </script>

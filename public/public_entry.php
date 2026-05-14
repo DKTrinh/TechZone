@@ -55,9 +55,25 @@ switch ($url) {
         (new AboutController($db))->index();
         break;
         
+    // BỔ SUNG VÀO KHỐI PUBLIC (Dành cho trang Khách)
     case 'contact':
         require_once '../app/controllers/ContactController.php';
         (new ContactController($db))->index();
+        break;
+    case 'contact/save':
+        require_once '../app/controllers/ContactController.php';
+        (new ContactController($db))->save();
+        break;
+
+    // BỔ SUNG VÀO KHỐI ADMIN (Quản lý Liên hệ)
+    case 'admin/contacts':
+    case 'admin/contacts/status':
+    case 'admin/contacts/delete':
+        require_once '../app/controllers/AdminContactController.php';
+        $contactAdmin = new AdminContactController($db);
+        if ($url === 'admin/contacts') $contactAdmin->index();
+        elseif ($url === 'admin/contacts/status') $contactAdmin->updateStatus();
+        elseif ($url === 'admin/contacts/delete') $contactAdmin->delete();
         break;
 
     case 'faqs':

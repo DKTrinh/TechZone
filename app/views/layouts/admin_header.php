@@ -53,6 +53,10 @@
                                 <a href="public_entry.php?url=admin/about-edit"><i class="ti-info-alt"></i> <span>Quản lý Giới thiệu</span></a>
                             </li>
                             
+                            <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'contact') !== false ? 'active' : '' ?>">
+    <a href="public_entry.php?url=admin/contacts"><i class="ti-email"></i> <span>Quản lý Liên hệ</span></a>
+</li>
+
                             <li class="<?= isset($_GET['url']) && strpos($_GET['url'], 'admin/faq') !== false ? 'active' : '' ?>">
                                 <a href="public_entry.php?url=admin/faq"><i class="ti-help-alt"></i> <span>Quản lý Hỏi đáp</span></a>
                             </li>
