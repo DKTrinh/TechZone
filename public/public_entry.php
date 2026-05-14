@@ -7,15 +7,17 @@ error_reporting(E_ALL);
 require_once '../app/helpers/SessionHelper.php';
 require_once '../app/helpers/CsrfHelper.php';
 require_once '../app/config/db_config.php'; 
+require_once '../app/core/Database.php'; 
 
 SessionHelper::start();
-$db = Database::connect();
+// Chú ý: Dùng getConnection() theo đúng chuẩn class Database hiện tại
+$db = Database::getConnection();
 $url = $_GET['url'] ?? 'home';
 
-// ... (Giữ nguyên phần đầu file)
-
 switch ($url) {
-    // --- AUTH & PROFILE (Giữ nguyên) ---
+    // =====================================
+    // 1. AUTH & PROFILE (TÀI KHOẢN CÁ NHÂN)
+    // =====================================
     case 'login':
     case 'register':
     case 'logout':
@@ -33,18 +35,16 @@ switch ($url) {
     case 'profile-check-pass':
         require_once '../app/controllers/ProfileController.php';
         $app = new ProfileController($db);
-        
-        if ($url === 'profile') {
-            $app->index();
-        } elseif ($url === 'profile-update') {
-            $app->update();
-        } elseif ($url === 'profile-password') {
-            $app->changePassword();
-        } elseif ($url === 'profile-check-pass') {
-            $app->checkCurrentPassword();
-        }
+        if ($url === 'profile') $app->index();
+        elseif ($url === 'profile-update') $app->update();
+        elseif ($url === 'profile-password') $app->changePassword();
+        elseif ($url === 'profile-avatar') $app->uploadAvatar();
+        elseif ($url === 'profile-check-pass') $app->checkCurrentPassword();
         break;
-    // --- CÁC TRANG PUBLIC (SỬA LỖI 404 TẠI ĐÂY) ---
+
+    // =====================================
+    // 2. CÁC TRANG PUBLIC CHUNG (KHÁCH VÃNG LAI)
+    // =====================================
     case 'home':
         require_once '../app/controllers/HomeController.php';
         (new HomeController($db))->index();
@@ -53,11 +53,6 @@ switch ($url) {
     case 'about':
         require_once '../app/controllers/AboutController.php';
         (new AboutController($db))->index();
-        break;
-
-    case 'products':
-        require_once '../app/controllers/ProductController.php';
-        (new ProductController($db))->index();
         break;
 
     case 'news':
@@ -71,11 +66,12 @@ switch ($url) {
         break;
 
     case 'faqs':
+    case 'faq/user-request':
         require_once '../app/controllers/FaqController.php';
-        (new FaqController($db))->index();
+        if ($url === 'faqs') (new FaqController($db))->index();
+        elseif ($url === 'faq/user-request') (new FaqController($db))->userRequest();
         break;
 
-    // Các trang bổ sung từ menu Header để tránh 404
     case 'solutions':
     case 'technology':
     case 'case-studies':
@@ -83,125 +79,101 @@ switch ($url) {
         require_once '../app/controllers/PageController.php';
         $app = new PageController($db);
         if ($url === 'solutions') $app->solutions();
-        else $app->technology(); // hoặc các hàm tương ứng
+        else $app->technology(); 
         break;
 
-    case 'users':
-        // 1. Kiểm tra đăng nhập
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: public_entry.php?url=home');
-            exit;
-        }
-        // 2. Kiểm tra quyền Admin
-        if ($_SESSION['user_role'] !== 'admin') {
-            echo "<script>alert('Bạn không có quyền truy cập trang này!'); window.location.href='public_entry.php?url=home';</script>";
-            exit;
-        }
-        // 3. NẠP FILE CONTROLLER (Thiếu dòng này sẽ bị lỗi)
-        require_once '../app/controllers/AdminUserController.php';
-        $app = new AdminUserController($db);
-        $app->index();
+    // =====================================
+    // 3. SẢN PHẨM & GIỎ HÀNG & ĐƠN HÀNG (NHÁNH 3)
+    // =====================================
+    case 'products':
+        require_once '../app/controllers/ProductController.php';
+        (new ProductController($db))->index();
+        break;
+        
+    case 'product-detail':
+        require_once '../app/controllers/ProductController.php';
+        (new ProductController($db))->detail();
         break;
 
-    case 'user-edit':
-    case 'user-update':
-    case 'user-lock':
-    case 'user-reset':
-        // 1. Kiểm tra quyền Admin trước khi cho phép vào các case này
-        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-            header('Location: public_entry.php?url=home');
-            exit;
-        }
-
-        require_once '../app/controllers/AdminUserController.php';
-        $adminApp = new AdminUserController($db);
-
-        // 2. Điều hướng đúng phương thức dựa trên tham số url
-        if ($url === 'users') {
-            $adminApp->index();
-        } elseif ($url === 'user-edit') {
-            $adminApp->edit(); // Giả sử hàm sửa của bạn tên là edit
-        } elseif ($url === 'user-lock') {
-            $adminApp->lock(); // Giả sử hàm khóa của bạn tên là lock
-        } elseif ($url === 'user-reset') {
-            $adminApp->resetPassword(); // Giả sử hàm reset của bạn tên là resetPassword
-        } elseif ($url === 'user-update') {
-            $adminApp->update();
-        }
+    case 'cart':
+    case 'cart-add-ajax':
+    case 'cart-remove':
+    case 'update-cart':
+    case 'apply-coupon':
+    case 'checkout':
+    case 'checkout-process':
+    case 'my-orders':
+    case 'buy-now':
+        require_once '../app/controllers/OrderController.php';
+        $orderApp = new OrderController($db);
+        if ($url === 'cart') $orderApp->cartIndex();
+        elseif ($url === 'cart-add-ajax') $orderApp->addToCartAjax();
+        elseif ($url === 'cart-remove') $orderApp->removeFromCart();
+        elseif ($url === 'update-cart') $orderApp->updateCartAjax();
+        elseif ($url === 'apply-coupon') $orderApp->applyCouponAjax();
+        elseif ($url === 'checkout') $orderApp->checkout();
+        elseif ($url === 'buy-now') $orderApp->buyNow();
+        elseif ($url === 'checkout-process') $orderApp->processCheckout();
+        elseif ($url === 'my-orders') $orderApp->myOrders();
         break;
 
-        // BÊN TRONG KHỐI PROFILE (Thêm route check-pass)
-    case 'profile':
-    case 'profile-update':
-    case 'profile-password':
-    case 'profile-avatar':
-    case 'profile-check-pass': // Dòng mới thêm
-        require_once '../app/controllers/ProfileController.php';
-        $app = new ProfileController($db);
-        if ($url === 'profile') $app->index();
-        elseif ($url === 'profile-update') $app->update();
-        elseif ($url === 'profile-password') $app->changePassword();
-        elseif ($url === 'profile-avatar') $app->uploadAvatar();
-        elseif ($url === 'profile-check-pass') $app->checkCurrentPassword(); // Hàm mới
-        break;
-
-    // BÊN TRONG KHỐI ADMIN (Thêm route user-store)
-    // --- GOM DUY NHẤT 1 KHỐI QUẢN LÝ ADMIN USER ---
+    // =====================================
+    // 4. KHU VỰC QUẢN TRỊ VIÊN (ADMIN DASHBOARD)
+    // =====================================
+    // A. Quản lý Thành viên
     case 'users':
     case 'user-edit':
     case 'user-update':
     case 'user-lock':
     case 'user-reset':
     case 'user-store':
-        // Kiểm tra quyền Admin
         if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
             echo "<script>alert('Từ chối truy cập!'); window.location.href='public_entry.php?url=home';</script>"; exit;
         }
-        
         require_once '../app/controllers/AdminUserController.php';
-        $adminApp = new AdminUserController($db);
-        
-        // Điều hướng đúng chức năng
-        if ($url === 'users') {
-            $adminApp->index();
-        } elseif ($url === 'user-update') {
-            $adminApp->update();
-        } elseif ($url === 'user-lock') {
-            $adminApp->lock();
-        } elseif ($url === 'user-reset') {
-            $adminApp->resetPassword();
-        } elseif ($url === 'user-store') {
-            $adminApp->store();
-        }
-        break;
-    // ---------------------------------------------
-    case 'admin/about-edit':
-        require_once '../app/controllers/AdminPageController.php';
-        (new AdminPageController($db))->editAbout();
+        $adminUserApp = new AdminUserController($db);
+        if ($url === 'users') $adminUserApp->index();
+        elseif ($url === 'user-edit') $adminUserApp->edit();
+        elseif ($url === 'user-update') $adminUserApp->update();
+        elseif ($url === 'user-lock') $adminUserApp->lock();
+        elseif ($url === 'user-reset') $adminUserApp->resetPassword();
+        elseif ($url === 'user-store') $adminUserApp->store();
         break;
 
-    case 'admin/about-update':
-        require_once '../app/controllers/AdminPageController.php';
-        (new AdminPageController($db))->updateAbout();
+    // B. Quản lý Sản phẩm
+    case 'admin-products':
+    case 'admin-product-store':
+    case 'admin-product-update':
+    case 'admin-product-delete':
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { header('Location: public_entry.php?url=home'); exit; }
+        require_once '../app/controllers/AdminProductController.php';
+        $adminProdApp = new AdminProductController();
+        if ($url === 'admin-products') $adminProdApp->index();
+        elseif ($url === 'admin-product-store') $adminProdApp->store();
+        elseif ($url === 'admin-product-update') $adminProdApp->update();
+        elseif ($url === 'admin-product-delete') $adminProdApp->delete();
         break;
 
+    // C. Quản lý Đơn hàng
+    case 'admin-orders':
+    case 'admin-order-update':
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { header('Location: public_entry.php?url=home'); exit; }
+        require_once '../app/controllers/AdminOrderController.php';
+        $adminOrderApp = new AdminOrderController($db);
+        if ($url === 'admin-orders') $adminOrderApp->index();
+        elseif ($url === 'admin-order-update') $adminOrderApp->updateStatus();
+        break;
+
+    // D. Quản lý FAQ
     case 'admin/faq':
     case 'admin/faq/edit':
     case 'admin/faq/update':
     case 'admin/faq/delete':
     case 'admin/faq/create':
     case 'admin/faq/store':
-        // 1. Kiểm tra quyền Admin để bảo mật hệ thống TechZone
-        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
-            header('Location: public_entry.php?url=home');
-            exit;
-        }
-
-        // 2. Nạp Controller
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { header('Location: public_entry.php?url=home'); exit; }
         require_once '../app/controllers/AdminFaqController.php';
         $faqAdmin = new AdminFaqController($db);
-
-        // 3. Điều hướng dựa trên URL
         if ($url === 'admin/faq') $faqAdmin->index();
         elseif ($url === 'admin/faq/create') $faqAdmin->create();
         elseif ($url === 'admin/faq/store') $faqAdmin->store();
@@ -210,14 +182,26 @@ switch ($url) {
         elseif ($url === 'admin/faq/delete') $faqAdmin->delete();
         break;
 
-    // Tìm case 'faqs' và thêm case mới này bên dưới
-    case 'faq/user-request':
-        require_once '../app/controllers/FaqController.php';
-        (new FaqController($db))->userRequest();
+    // E. Quản lý Nội dung trang About
+    case 'admin/about-edit':
+    case 'admin/about-update':
+        if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') { header('Location: public_entry.php?url=home'); exit; }
+        require_once '../app/controllers/AdminPageController.php';
+        $adminPageApp = new AdminPageController($db);
+        if ($url === 'admin/about-edit') $adminPageApp->editAbout();
+        elseif ($url === 'admin/about-update') $adminPageApp->updateAbout();
         break;
+
+    // =====================================
+    // 5. TRANG 404 (KHÔNG TÌM THẤY URL)
+    // =====================================
     default:
         require_once '../app/views/layouts/header.php';
-        echo "<div class='container my-5 text-center'><h1>404 - Trang không tồn tại</h1></div>";
+        echo "<div class='container my-5 text-center'>
+                <h1 class='display-1 text-danger fw-bold mt-5'>404</h1>
+                <h2 class='text-muted mb-5'>Trang không tồn tại hoặc đang được phát triển!</h2>
+                <a href='public_entry.php?url=home' class='btn btn-primary fw-bold px-4 py-2'><i class='fas fa-home me-2'></i>Về trang chủ</a>
+              </div>";
         require_once '../app/views/layouts/footer.php';
         break;
 }

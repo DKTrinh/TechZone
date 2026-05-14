@@ -5,7 +5,7 @@ if (!class_exists('Database')) {
         public static function getConnection() {
             try {
                 $conn = new PDO(
-                    "mysql:host=localhost;dbname=cleantech;charset=utf8mb4",
+                    "mysql:host=localhost;dbname=techzone;charset=utf8mb4",
                     "root",
                     ""
                 );

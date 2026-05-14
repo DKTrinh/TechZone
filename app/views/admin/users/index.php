@@ -13,11 +13,16 @@
 <div class="d-flex" style="min-height: 90vh; background-color: #f4f6fa;">
     
     <div class="bg-dark text-white p-3 shadow-lg" style="width: 270px;">
-        <h5 class="fw-bold mb-4 mt-2 text-center text-info" style="letter-spacing: 1px;"><i class="fas fa-microchip me-2"></i> TECHZONE</h5>
+        <h5 class="fw-bold mb-4 mt-4 text-center text-info" style="letter-spacing: 1px;"><i class="fas fa-microchip me-2"></i> TECHZONE</h5>
         <div class="nav flex-column gap-2 mt-4">
             <a href="#" class="nav-link text-white sidebar-link"><i class="fas fa-chart-pie me-2"></i> Tổng quan</a>
-            <a href="public_entry.php?url=users" class="nav-link sidebar-link active"><i class="fas fa-users me-2"></i> Quản lý Thành viên</a>
-            <a href="#" class="nav-link text-white sidebar-link"><i class="fas fa-box-open me-2"></i> Quản lý Sản phẩm</a>
+            
+            <a href="public_entry.php?url=users" class="nav-link text-white sidebar-link active"><i class="fas fa-users me-2"></i> Quản lý Thành viên</a>
+            
+            <a href="public_entry.php?url=admin-products" class="nav-link text-white sidebar-link"><i class="fas fa-box-open me-2"></i> Quản lý Sản phẩm</a>
+            
+            <a href="public_entry.php?url=admin-orders" class="nav-link text-white sidebar-link"><i class="fas fa-clipboard-check me-2"></i> Quản lý Đơn hàng</a>
+            
             <a href="#" class="nav-link text-white sidebar-link"><i class="fas fa-newspaper me-2"></i> Quản lý Tin tức</a>
             <a href="#" class="nav-link text-white sidebar-link"><i class="fas fa-comments me-2"></i> Quản lý Bình luận</a>
         </div>
