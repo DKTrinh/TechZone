@@ -13,7 +13,7 @@ class AdminCommentController extends BaseController {
     public function index() {
         $keyword = $_GET['search'] ?? '';
         $comments = !empty($keyword) ? $this->commentModel->search($keyword) : $this->commentModel->getAllAdmin();
-        include '../app/views/admin/comments/index.php'; // Ép gọi thẳng View để tích hợp Srtdash
+        include '../app/views/admin/comments/index.php'; 
     }
 
     public function delete() {
