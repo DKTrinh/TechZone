@@ -18,7 +18,7 @@ class UserModel {
     public function updateProfile($id, $data) {
         $check = $this->db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
         $check->execute([$data['email'], $id]);
-        if ($check->fetch()) { return false; } // Trùng email thì báo lỗi
+        if ($check->fetch()) { return false; } 
 
         $stmt = $this->db->prepare("UPDATE users SET fullname=?, email=?, phone=?, address=?, gender=?, birthdate=? WHERE id=?");
         return $stmt->execute([
