@@ -12,13 +12,13 @@ class AdminNewsController extends BaseController {
     public function index() {
         $keyword = $_GET['search'] ?? '';
         $news = !empty($keyword) ? $this->newsModel->search($keyword) : $this->newsModel->getAllNews();
-        include '../app/views/admin/news/index.php'; // Trỏ thẳng tới view admin để tránh auto-load header của Client
+        include '../app/views/admin/news/index.php'; 
     }
     public function create() { include '../app/views/admin/news/create.php'; }
     
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $imagePath = $this->handleUpload() ?: $_POST['image']; // Lấy URL nếu không upload
+            $imagePath = $this->handleUpload() ?: $_POST['image'];
             $this->newsModel->create(['title' => $_POST['title'], 'content' => $_POST['content'], 'category' => $_POST['category'], 'badge' => $_POST['badge'], 'image' => $imagePath]);
             header('Location: public_entry.php?url=admin/news'); exit;
         }
