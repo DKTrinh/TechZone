@@ -187,7 +187,6 @@
         let modalInstance = bootstrap.Modal.getInstance(modalEl);
         if(modalInstance) modalInstance.hide();
         
-        // Chạy lại hàm validate để xóa đỏ (nếu có) khi được điền tự động
         validateName();
         validatePhone();
         validateAddr();
@@ -263,11 +262,7 @@
 
     inputs.forEach(item => {
         const el = document.getElementById(item.id);
-        
-        // Sự kiện blur: Chạy kiểm tra khi người dùng nhấp chuột ra khỏi ô
         el.addEventListener('blur', item.validator);
-        
-        // Sự kiện input: Nếu ô đang bị đỏ, gõ đúng sẽ mất đỏ ngay lập tức
         el.addEventListener('input', function() {
             if (this.classList.contains('is-invalid')) {
                 item.validator();
