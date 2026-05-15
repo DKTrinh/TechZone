@@ -20,7 +20,6 @@ class AdminProductController {
         $categories = $this->productModel->getAllCategories();
         $brands = $this->productModel->getAllBrands();
         
-        // CHỈ GỌI DUY NHẤT FILE VIEW NÀY (Vì bên trong view đã có sẵn admin_header và admin_footer rồi)
         require_once '../app/views/admin/products/index.php';
     }
 
@@ -39,7 +38,6 @@ class AdminProductController {
                 header("Location: public_entry.php?url=admin-products"); exit;
             }
 
-            // Xử lý Upload Ảnh
             $thumbnailPath = 'https://via.placeholder.com/500x500?text=No+Image'; 
             if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
                 $uploadDir = __DIR__ . "/../../public/assets/uploads/products/";
