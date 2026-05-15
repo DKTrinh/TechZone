@@ -30,7 +30,7 @@ if ($isLoggedIn) {
         $_SESSION['user_avatar'] = $userAvatar;
     }
 
-    // 2. Logic giỏ hàng cá nhân hóa (Chỉ khi đăng nhập mới đếm)
+    // 2. Logic giỏ hàng cá nhân hóa 
     $currentUserId = $_SESSION['user_id'];
     $userCart = $_SESSION['user_cart'][$currentUserId] ?? [];
     $cartCount = count($userCart);
@@ -50,13 +50,11 @@ if ($isLoggedIn) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        /* Sửa thanh trượt (Scrollbar) cho toàn trang */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f8f9fa; }
         ::-webkit-scrollbar-thumb { background: #c1c2c5; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #a8a9ab; }
 
-        /* CSS làm đẹp Filter */
         .custom-filter-card {
             border-radius: 16px;
             transition: all 0.3s ease;
@@ -86,8 +84,7 @@ if ($isLoggedIn) {
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
-        /* CSS Ẩn/Hiện mật khẩu */
+
         .password-toggle-icon {
             cursor: pointer;
             color: #9ca3af;
