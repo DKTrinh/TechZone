@@ -329,7 +329,13 @@ define("DB_PASS","");
 
 ### Cách 1 (Khuyên dùng)
 
-Mở terminal:
+Kiểm tra PHP:
+
+```bash
+php -v
+```
+
+Nếu hiển thị phiên bản PHP, chạy:
 
 ```bash
 php -S localhost:8000 -t public
@@ -339,6 +345,68 @@ Truy cập:
 
 ```text
 http://localhost:8000/public_entry.php
+```
+
+---
+
+Nếu báo lỗi:
+
+```text
+'php' is not recognized...
+```
+
+hãy dùng đường dẫn trực tiếp tới `php.exe`.
+
+Ví dụ XAMPP cài ở ổ C:
+
+```bash
+C:\xampp\php\php.exe -S localhost:8000 -t public
+```
+
+Ví dụ XAMPP cài ở ổ D:
+
+```bash
+D:\xampp\php\php.exe -S localhost:8000 -t public
+```
+Sau khi Terminal hiển thị:
+
+```text
+Development Server (http://localhost:8000) started
+```
+
+truy cập:
+
+```text
+http://localhost:8000/public_entry.php
+```
+
+---
+
+### Cách 2: Dùng XAMPP / WAMP
+
+Copy project vào:
+
+```text
+C:\xampp\htdocs\
+```
+
+hoặc:
+
+```text
+D:\xampp\htdocs\
+```
+
+Sau đó khởi động:
+
+- Apache
+- MySQL
+
+trong XAMPP Control Panel.
+
+Truy cập:
+
+```text
+http://localhost/TechZone/public/public_entry.php
 ```
 
 ---
