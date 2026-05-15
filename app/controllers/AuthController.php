@@ -57,15 +57,13 @@ public function login() {
         $user = $this->userModel->getUserByEmail($email);
 
         if ($user && password_verify($password, $user['password'])) {
-            // KIỂM TRA TRẠNG THÁI KHÓA (status = 0)
             if ($user['status'] == 0) {
-                $_SESSION['auth_status'] = 'locked'; // Footer của bạn sẽ bắt biến này để hiện thông báo đỏ
+                $_SESSION['auth_status'] = 'locked'; 
                 $_SESSION['auth_message'] = 'Tài khoản của bạn đã bị khóa!';
                 header('Location: public_entry.php?url=home&login_error=1');
                 exit();
             }
 
-            // ĐĂNG NHẬP THÀNH CÔNG
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_name'] = $user['fullname'];
