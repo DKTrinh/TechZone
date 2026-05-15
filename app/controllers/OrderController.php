@@ -24,7 +24,6 @@ class OrderController {
         if (session_status() == PHP_SESSION_NONE) session_start();
         
         $userId = $_SESSION['user_id'] ?? 0;
-        // ĐÃ FIX: Lấy đúng ngăn tủ giỏ hàng của user hiện tại
         $cart = $_SESSION['user_cart'][$userId] ?? [];
         
         require_once '../app/views/layouts/header.php';
@@ -35,7 +34,6 @@ class OrderController {
     public function addToCartAjax() {
         if (session_status() == PHP_SESSION_NONE) session_start();
         
-        // Nếu chưa đăng nhập, trả về trạng thái 'unauthorized'
         if (empty($_SESSION['user_id'])) {
             echo json_encode(['status' => 'unauthorized']);
             exit;
@@ -59,7 +57,6 @@ class OrderController {
                     ];
                 }
                 
-                // Đếm tổng số lượng để gửi về cho Header
                 $totalQty = array_sum(array_column($_SESSION['user_cart'][$userId], 'qty'));
 
                 echo json_encode([
@@ -110,7 +107,6 @@ class OrderController {
         $userModel = new UserModel($this->db);
         $user = $userModel->getUserById($userId);
         
-        // Chỉ lấy những sản phẩm đã được tick chọn để đem qua trang Thanh toán
         $checkoutItems = [];
         foreach ($selectedItems as $id) {
             if (isset($_SESSION['user_cart'][$userId][$id])) {
@@ -192,7 +188,6 @@ class OrderController {
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_SESSION['user_cart'][$userId])) {
             
-            // Lấy dữ liệu khách hàng gửi từ form checkout.php
             $name = trim($_POST['fullname'] ?? '');
             $phone = trim($_POST['phone'] ?? '');
             $address = trim($_POST['address'] ?? '');
@@ -211,10 +206,8 @@ class OrderController {
             $discount = $_SESSION['discount'] ?? 0;
             $totalPrice = max(0, $totalPrice - $discount);
             
-            // Gọi Model để lưu có truyền thêm name, phone, address
             $orderId = $this->orderModel->createOrderFull($userId, $name, $phone, $address, $totalPrice, $checkoutItems);
             
-            // Xóa giỏ hàng
             foreach ($selectedItems as $id) { unset($_SESSION['user_cart'][$userId][$id]); }
             unset($_SESSION['discount'], $_SESSION['selected_items']);
             
