@@ -383,6 +383,7 @@ http://localhost:8000/public_entry.php
 ---
 
 ### Cách 2: Dùng XAMPP / WAMP
+<<<<<<< HEAD
 
 Copy project vào:
 
@@ -412,14 +413,29 @@ http://localhost/TechZone/public/public_entry.php
 ---
 
 ### Cách 2 (XAMPP / WAMP)
+=======
+>>>>>>> 0bca870d212a1467b2f1bc150f71ed211ad793fb
 
 Copy project vào:
 
 ```text
-htdocs
+C:\xampp\htdocs\
 ```
 
-Mở:
+hoặc:
+
+```text
+D:\xampp\htdocs\
+```
+
+Sau đó khởi động:
+
+- Apache
+- MySQL
+
+trong XAMPP Control Panel.
+
+Truy cập:
 
 ```text
 http://localhost/TechZone/public/public_entry.php
