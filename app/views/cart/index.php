@@ -109,8 +109,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    let currentDiscount = 0; // Lưu trữ mức giảm giá hiện tại
-
+    let currentDiscount = 0; 
     // 1. Hàm tính toán lại tổng tiền khi check/uncheck sản phẩm
     function calcTotal() {
         let total = 0;
@@ -125,20 +124,12 @@
                 total += (price * qty);
             }
         });
-
-        // Cập nhật trạng thái nút Check All
         document.getElementById('selectAll').checked = (checkedCount === checkboxes.length && checkboxes.length > 0);
         document.getElementById('countSelected').innerText = checkedCount;
-
-        // Cập nhật hiển thị Tạm tính
         document.getElementById('displaySubtotal').innerText = total.toLocaleString('vi-VN') + 'đ';
-
-        // Tính lại Tổng cộng (Trừ đi mã giảm giá nếu có)
         let final = total - currentDiscount;
         if(final < 0) final = 0;
         document.getElementById('finalTotal').innerText = final.toLocaleString('vi-VN') + 'đ';
-
-        // Bật/Tắt nút Mua hàng
         document.getElementById('btnCheckout').disabled = (checkedCount === 0);
     }
 
@@ -164,7 +155,7 @@
         .then(res => res.json())
         .then(data => {
             if(data.status === 'success') {
-                window.location.reload(); // Reload lại để backend tính toán cho đồng bộ
+                window.location.reload(); 
             } else {
                 Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Kho chỉ còn tối đa ' + data.max + ' sản phẩm!', showConfirmButton: false, timer: 2000 });
             }
@@ -197,7 +188,7 @@
                 row.classList.remove('d-none');
                 amt.innerText = '-' + currentDiscount.toLocaleString('vi-VN') + 'đ';
                 
-                calcTotal(); // Gọi lại hàm tính tổng để trừ tiền
+                calcTotal(); 
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Đã áp dụng mã giảm giá!', showConfirmButton: false, timer: 1500 });
             } else {
                 msgBox.className = "d-block mb-3 fw-bold text-danger";
