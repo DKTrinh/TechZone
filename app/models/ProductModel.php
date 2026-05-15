@@ -3,7 +3,6 @@ class ProductModel {
     private $db;
 
     public function __construct() {
-        // Khởi tạo kết nối CSDL dùng chung từ Database Core
         $this->db = Database::getConnection(); 
     }
 
@@ -125,7 +124,6 @@ class ProductModel {
             $stmt = $this->db->prepare("UPDATE products SET category_id=?, brand=?, name=?, price=?, old_price=?, thumbnail=?, description=?, stock_count=? WHERE id=?");
             return $stmt->execute([$categoryId, $brand, $name, $price, $oldPrice, $thumbnail, $desc, $stock, $id]);
         } else {
-            // Không cập nhật lại hình ảnh nếu Admin không up ảnh mới
             $stmt = $this->db->prepare("UPDATE products SET category_id=?, brand=?, name=?, price=?, old_price=?, description=?, stock_count=? WHERE id=?");
             return $stmt->execute([$categoryId, $brand, $name, $price, $oldPrice, $desc, $stock, $id]);
         }
