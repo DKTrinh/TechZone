@@ -1,7 +1,5 @@
 <?php 
-// Xử lý chuỗi ảnh (nếu có nhiều ảnh cách nhau bằng dấu phẩy)
 $images = explode(',', $product['thumbnail']); 
-// Tính % giảm giá
 $discountPct = ($product['old_price'] > $product['price']) ? round((($product['old_price'] - $product['price']) / $product['old_price']) * 100) : 0;
 ?>
 
@@ -91,13 +89,11 @@ $discountPct = ($product['old_price'] > $product['price']) ? round((($product['o
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Kiểm tra trạng thái đăng nhập từ Session PHP truyền thẳng vào JS
     const isLoggedIn = <?= isset($_SESSION['user_id']) ? 'true' : 'false' ?>;
 
     function changeQty(val) {
         let q = document.getElementById('qty_detail');
         let nv = parseInt(q.value) + val;
-        // Kiểm tra tồn kho
         if(nv >= 1 && nv <= <?= $product['stock_count'] ?>) {
             q.value = nv;
             document.getElementById('buy_now_qty').value = nv;
@@ -106,7 +102,6 @@ $discountPct = ($product['old_price'] > $product['price']) ? round((($product['o
         }
     }
 
-    // Xử lý thêm vào giỏ hàng
     function addCartAjax(productId) {
         if (!isLoggedIn) {
             Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Bạn phải đăng nhập mới thêm vào giỏ hàng hoặc mua được!', showConfirmButton: false, timer: 2000 });
@@ -123,8 +118,6 @@ $discountPct = ($product['old_price'] > $product['price']) ? round((($product['o
         .then(data => {
             if(data.status === 'success') {
                 Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: data.message, showConfirmButton: false, timer: 1000 });
-                
-                // Cập nhật số lượng trên Header
                 let cartBadge = document.getElementById('cartCount');
                 if(cartBadge) {
                     cartBadge.innerText = data.cart_count;
@@ -134,8 +127,7 @@ $discountPct = ($product['old_price'] > $product['price']) ? round((($product['o
             }
         });
     }
-
-    // Xử lý nút Mua Ngay
+    
     function buyNowAction(event) {
         if (!isLoggedIn) {
             event.preventDefault(); 
