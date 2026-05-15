@@ -150,7 +150,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // 1. POPUP THÔNG BÁO (Toast)
+    // 1. POPUP THÔNG BÁO
     <?php if (isset($_SESSION['auth_status'])): ?>
         Swal.fire({
             toast: true, position: 'top-end', showConfirmButton: false, timer: 2000,
@@ -162,20 +162,15 @@
     // 2. MỞ KHÓA NÚT LƯU KHI CÓ THAY ĐỔI
     const pForm = document.getElementById('profileForm');
     const pSaveBtn = document.getElementById('btn-save-profile');
-    
-    // Thu thập dữ liệu ban đầu
     const initialData = new FormData(pForm);
 
     function checkFormChanges() {
         let changed = false;
         const currentData = new FormData(pForm);
         for(let [key, val] of initialData.entries()) {
-            // Loại trừ file upload lúc so sánh text
             if(key !== 'avatar' && currentData.get(key) !== val) { changed = true; break; }
         }
-        // Nếu chọn ảnh mới
         if(document.getElementById('avatar-input').files.length > 0) changed = true;
-        
         pSaveBtn.disabled = !changed;
     }
     pForm.addEventListener('input', checkFormChanges);
