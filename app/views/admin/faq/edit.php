@@ -2,7 +2,6 @@
 require_once '../app/views/layouts/admin_header.php';
 ?>
 
-
 <div class="row">
     <div class="col-12 mt-5">
         <div class="card border-0 shadow-sm" style="border-radius: 15px;">
@@ -51,11 +50,9 @@ require_once '../app/views/layouts/admin_header.php';
     </div>
 </div>
 
-
 <script>
     let isChanged = false; // Cờ kiểm tra thay đổi
     const faqForm = document.getElementById('faqEditForm');
-
 
     // 1. Theo dõi mọi thay đổi trên các ô nhập liệu
     document.querySelectorAll('.track-change').forEach(element => {
@@ -63,11 +60,9 @@ require_once '../app/views/layouts/admin_header.php';
         element.addEventListener('change', () => { isChanged = true; });
     });
 
-
     // 2. XỬ LÝ KHI NHẤN NÚT LƯU (Popup xác nhận lưu)
     faqForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Chặn gửi form ngay lập tức
-       
+        e.preventDefault(); // Chặn gửi form ngay lập tức    
         Swal.fire({
             title: 'Xác nhận cập nhật FAQ?',
             text: "Câu trả lời này sẽ được hiển thị công khai trên trang chủ.",
@@ -85,7 +80,6 @@ require_once '../app/views/layouts/admin_header.php';
         });
     });
 
-
     // 3. XỬ LÝ KHI THOÁT TRANG (Popup cảnh báo dữ liệu chưa lưu)
     // Áp dụng cho các link trên Sidebar và Header của srtdash
     document.querySelectorAll('.sidebar-menu a, .user-profile a, .btn-outline-secondary').forEach(link => {
@@ -94,8 +88,6 @@ require_once '../app/views/layouts/admin_header.php';
             if (isChanged && !this.href.includes('javascript:') && !this.classList.contains('user-dropdown-logout')) {
                 e.preventDefault();
                 const targetUrl = this.href;
-
-
                 Swal.fire({
                     title: 'Dữ liệu chưa được lưu!',
                     text: "Những thay đổi của bạn sẽ bị mất nếu bạn thoát ra lúc này. Bạn có muốn lưu lại không?",
@@ -120,7 +112,6 @@ require_once '../app/views/layouts/admin_header.php';
         });
     });
 
-
     // 4. Cảnh báo trình duyệt (F5, đóng tab)
     window.addEventListener('beforeunload', (e) => {
         if (isChanged) {
@@ -130,8 +121,6 @@ require_once '../app/views/layouts/admin_header.php';
     });
 </script>
 
-
 <?php
 require_once '../app/views/layouts/admin_footer.php';
 ?>
-
