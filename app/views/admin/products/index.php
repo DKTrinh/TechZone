@@ -188,7 +188,6 @@
 </div>
 
 <script>
-    // JS Mở form sửa
     document.querySelectorAll('.btn-edit-product').forEach(btn => {
         btn.addEventListener('click', function() {
             document.getElementById('e_id').value = this.dataset.id;
@@ -204,7 +203,6 @@
         });
     });
 
-    // JS Xóa
     function deleteProduct(id) {
         Swal.fire({
             title: 'Chắc chắn xóa?', text: "Hành động này không thể hoàn tác!", icon: 'warning',
