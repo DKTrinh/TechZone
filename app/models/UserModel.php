@@ -15,9 +15,7 @@ class UserModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // LƯU CẬP NHẬT PROFILE CHUẨN (Đã thêm email)
     public function updateProfile($id, $data) {
-        // Kiểm tra xem email mới có bị trùng với người khác không
         $check = $this->db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
         $check->execute([$data['email'], $id]);
         if ($check->fetch()) { return false; } // Trùng email thì báo lỗi
@@ -45,21 +43,13 @@ class UserModel {
         return $stmt->execute([$newHash, $id]);
     }
 
-    // ==========================================
-    // DÀNH CHO KHÁCH HÀNG TỰ ĐĂNG KÝ
-    // ==========================================
     public function registerUser($fullname, $email, $password) {
-        // Mã hóa mật khẩu an toàn
         $hash = password_hash($password, PASSWORD_BCRYPT);
         
-        // Mặc định khách hàng tự đăng ký sẽ có role là 'client' và status là 1 (Hoạt động)
         $stmt = $this->db->prepare("INSERT INTO users (fullname, email, password, role, status) VALUES (?, ?, ?, 'client', 1)");
         return $stmt->execute([$fullname, $email, $hash]);
     }
 
-    // ==========================================
-    // ADMIN: CÁC HÀM QUẢN TRỊ
-    // ==========================================
     public function getUsers($limit, $offset) {
         $stmt = $this->db->prepare("SELECT * FROM users ORDER BY id DESC LIMIT :limit OFFSET :offset");
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
@@ -72,7 +62,6 @@ class UserModel {
         return $this->db->query("SELECT COUNT(*) FROM users")->fetchColumn();
     }
 
-    // Cập nhật toàn bộ thông tin bởi Admin
     public function updateUser($id, $fullname, $email, $role, $phone, $address) {
         $stmt = $this->db->prepare("UPDATE users SET fullname=?, email=?, role=?, phone=?, address=? WHERE id=?");
         return $stmt->execute([$fullname, $email, $role, $phone, $address, $id]);
