@@ -1,5 +1,5 @@
 <?php
-// Thêm lệnh kiểm tra này ở dòng 2
+
 if (!class_exists('Database')) {
     class Database {
         public static function getConnection() {
