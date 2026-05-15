@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login - CleanTech</title>
+    <title>Login - TechZone</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background: linear-gradient(135deg, #a7b8e1 0%, #c4c1e0 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; margin: 0; }
         .auth-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.15); max-width: 900px; width: 100%; }
         .auth-left { background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 60px 50px; position: relative; }
-        .auth-left::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85') center/cover; opacity: 0.2; mix-blend-mode: overlay; }
+        .auth-left::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('/TechZone-main/TechZone-main/public/assets/uploads/products/33.png') center/cover; opacity: 0.2; mix-blend-mode: overlay; }
         .auth-left-content { position: relative; z-index: 1; }
         .auth-right { padding: 60px 50px; background: #ffffff; }
         .form-control { background: #f4f6fa; border: none; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; font-size: 0.95rem; }
@@ -26,7 +26,7 @@
                         <div class="mb-5 d-flex align-items-center fw-bold">
                             <a href="?url=home" class="text-white text-decoration-none fs-5">
                                 <span style="background: white; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px;"></span> 
-                                CLEAN TECH
+                                TECH ZONE
                             </a>
                         </div>
                         <h1 class="fw-bold display-5 mb-4" id="welcome-title">Hello,<br>welcome!</h1>
