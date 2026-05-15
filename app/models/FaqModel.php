@@ -20,7 +20,6 @@ class FaqModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Thêm mới một câu hỏi vào hệ thống
     public function insert($title, $question, $answer = null, $status = 'pending') {
         $sql = "INSERT INTO faqs (title, question, answer, status) VALUES (?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
