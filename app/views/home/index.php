@@ -1,7 +1,7 @@
 <?php require_once '../app/views/layouts/header.php'; ?>
 
 <style>
-    /* banner carousel (đơn giản) */
+    /* banner carousel */
     .banner-section { margin-bottom: 40px; }
     .banner-slider { display: flex; gap: 20px; flex-wrap: wrap; }
     .banner-main { flex: 2; background: linear-gradient(145deg, #0b2e3e, #154e5c); border-radius: 24px; padding: 35px 30px; color: white; position: relative; overflow: hidden; }
