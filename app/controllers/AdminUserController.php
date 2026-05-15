@@ -39,7 +39,6 @@ class AdminUserController {
             $gender = !empty($_POST['gender']) ? $_POST['gender'] : null;
             $birthdate = !empty($_POST['birthdate']) ? $_POST['birthdate'] : null;
 
-            // XỬ LÝ UPLOAD ẢNH CHO ADMIN
             if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
                 $targetDir = __DIR__ . "/../../public/assets/uploads/"; 
                 if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
@@ -47,7 +46,6 @@ class AdminUserController {
                 $fileName = time() . '_' . basename($_FILES['avatar']['name']);
                 $targetPath = $targetDir . $fileName;
                 
-                // ĐÃ FIX LỖI NHÁY ĐƠN VÀ KÉP Ở ĐÂY
                 if (move_uploaded_file($_FILES['avatar']['tmp_name'], $targetPath)) {
                     $dbPath = "assets/uploads/" . $fileName;
                     $this->userModel->updateAvatar($id, $dbPath);
@@ -55,7 +53,6 @@ class AdminUserController {
                 }
             }
 
-            // LƯU MỌI THÔNG TIN
             $this->userModel->updateUser($id, $fullname, $email, $role, $phone, $address, $gender, $birthdate);
             
             if ($id == $_SESSION['user_id']) { $_SESSION['user_name'] = $fullname; }
