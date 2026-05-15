@@ -1,15 +1,71 @@
-<div id="productBanner" class="carousel slide mb-5" data-bs-ride="carousel">
+<style>
+    /* Tuỳ chỉnh màu nền cho 3 Banner */
+    .dark-banner-1 { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); height: 350px; }
+    .dark-banner-2 { background: linear-gradient(135deg, #141e30, #243b55); height: 350px; }
+    .dark-banner-3 { background: linear-gradient(135deg, #232526, #414345); height: 350px; }
+
+    /* CSS làm đẹp cho form bộ lọc */
+    .custom-filter-card {
+        border-radius: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+        border: 1px solid #edf2f7;
+    }
+    
+    /* BỔ SUNG: RESPONSIVE CHO MOBILE VÀ TABLET */
+    @media (max-width: 991.98px) {
+        /* Giảm chiều cao banner trên màn hình nhỏ */
+        .dark-banner-1, .dark-banner-2, .dark-banner-3 {
+            height: 250px !important; 
+        }
+        
+        /* Chữ trong banner nhỏ lại một xíu */
+        #productBanner h2.display-5 {
+            font-size: 1.8rem;
+        }
+        #productBanner p.fs-5 {
+            font-size: 1rem !important;
+        }
+
+        /* Hủy sticky-top của bộ lọc trên Mobile để không bị dính che mất màn hình */
+        .sticky-top {
+            position: relative !important;
+            top: 0 !important;
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+<div id="productBanner" class="carousel slide carousel-fade mb-5" data-bs-ride="carousel">
     <div class="carousel-inner">
-        <?php foreach($banners as $index => $banner): ?>
-        <div class="carousel-item <?= $index == 0 ? 'active' : '' ?>" data-bs-interval="4000">
-            <a href="<?= $banner['link'] ?>">
-                <img src="<?= $banner['image'] ?>" class="d-block w-100" style="height: 350px; object-fit: cover; filter: brightness(0.8);">
-                <div class="carousel-caption d-none d-md-block">
-                    <h2 class="fw-bold text-white display-5 shadow-sm"><?= $banner['title'] ?></h2>
+        
+        <div class="carousel-item active" data-bs-interval="4000">
+            <div class="d-block w-100 dark-banner-1 d-flex align-items-center justify-content-center">
+                <div class="text-center px-4">
+                    <h2 class="fw-bold text-white display-5 shadow-sm mb-3">Công Nghệ Dẫn Đầu</h2>
+                    <p class="text-white-50 fs-5">Khám phá các sản phẩm công nghệ mới nhất</p>
                 </div>
-            </a>
+            </div>
         </div>
-        <?php endforeach; ?>
+
+        <div class="carousel-item" data-bs-interval="4000">
+            <div class="d-block w-100 dark-banner-2 d-flex align-items-center justify-content-center">
+                <div class="text-center px-4">
+                    <h2 class="fw-bold text-white display-5 shadow-sm mb-3">Săn Sale Giá Sốc</h2>
+                    <p class="text-white-50 fs-5">Hàng ngàn ưu đãi giảm giá lên đến 50%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-item" data-bs-interval="4000">
+            <div class="d-block w-100 dark-banner-3 d-flex align-items-center justify-content-center">
+                <div class="text-center px-4">
+                    <h2 class="fw-bold text-white display-5 shadow-sm mb-3">Bảo Hành Tận Tâm</h2>
+                    <p class="text-white-50 fs-5">Cam kết chính hãng, hỗ trợ kỹ thuật 24/7</p>
+                </div>
+            </div>
+        </div>
+
     </div>
     <button class="carousel-control-prev" type="button" data-bs-target="#productBanner" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -22,7 +78,7 @@
 <div class="container py-4">
     <div class="row g-4">
         <div class="col-lg-3">
-            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+            <div class="card custom-filter-card border-0 shadow-sm p-4 sticky-top" style="top: 100px;">
                 <h5 class="fw-bold mb-4"><i class="fas fa-filter text-primary me-2"></i> Lọc Sản Phẩm</h5>
                 <form action="public_entry.php" method="GET">
                     <input type="hidden" name="url" value="products">

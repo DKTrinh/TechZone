@@ -90,9 +90,10 @@ CREATE TABLE IF NOT EXISTS contacts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fullname VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
     subject VARCHAR(255),
     message TEXT NOT NULL,
-    status ENUM('pending', 'resolved') DEFAULT 'pending',
+    status ENUM('unread', 'read', 'replied') DEFAULT 'unread',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -149,57 +150,6 @@ CREATE TABLE IF NOT EXISTS order_details (
 );
 
 -- ==============================================
--- 10. BẢNG MÃ GIẢM GIÁ (VOUCHERS) & VÍ VOUCHER
--- ==============================================
-CREATE TABLE IF NOT EXISTS vouchers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    code VARCHAR(50) UNIQUE NOT NULL,
-    discount_type ENUM('percent', 'fixed') NOT NULL,
-    discount_value DECIMAL(15,2) NOT NULL,
-    min_order_value DECIMAL(15,2) DEFAULT 0,
-    start_date DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
-    usage_limit INT DEFAULT 1,
-    used_count INT DEFAULT 0,
-    target_type ENUM('all', 'category', 'product') DEFAULT 'all',
-    target_ids VARCHAR(255) NULL, 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS user_vouchers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    voucher_id INT NOT NULL,
-    is_used TINYINT(1) DEFAULT 0,
-    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON DELETE CASCADE
-);
-
--- ==============================================
--- 11. BẢNG ĐỔI / TRẢ HÀNG & THÔNG BÁO
--- ==============================================
-CREATE TABLE IF NOT EXISTS return_requests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL,
-    user_id INT NOT NULL,
-    product_id INT NOT NULL,
-    reason TEXT NOT NULL,
-    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS notifications (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NULL, 
-    title VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    is_read TINYINT(1) DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ==============================================
 -- ĐỔ DỮ LIỆU MẪU (TEST DATA)
 -- ==============================================
 
@@ -252,9 +202,9 @@ INSERT INTO products (name, category_id, brand, price, old_price, stock_count, d
 ('Bóng Đèn Philips Hue', 8, 'Philips', 1200000, 1500000, 100, 'Đèn thông minh.', 'assets/uploads/products/29.png'),
 ('Ổ Cắm Thông Minh Tuya', 8, 'Tuya', 350000, 500000, 200, 'Điều khiển qua WiFi.', 'assets/uploads/products/30.png');
 
--- 4. Tin tức & Bài viết (Chỉ giữ lại của TechZone)
+-- 4. Tin tức & Bài viết
 INSERT INTO news (title, badge, category, content, image) VALUES
-('Apple ra mắt chip M3', 'Mới nhất', 'Công nghệ', 'Chip M3 mới của Apple mang lại hiệu năng vượt trội và tiết kiệm pin đáng kể cho các dòng Macbook thế hệ mới.', 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8');
+('Apple ra mắt chip M3', 'Mới nhất', 'Công nghệ', 'Chip M3 mới của Apple mang lại hiệu năng vượt trội và tiết kiệm pin đáng kể cho các dòng Macbook thế hệ mới.', 'assets/uploads/products/33.png');
 
 -- 5. Bình luận mẫu
 INSERT INTO comments (user_id, news_id, product_id, content, rating) VALUES

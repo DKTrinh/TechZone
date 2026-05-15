@@ -2,35 +2,38 @@
 if (session_status() == PHP_SESSION_NONE) { session_start(); }
 
 $isLoggedIn = isset($_SESSION['user_id']);
-$defaultAvatar = 'https://cellphones.com.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg';
+$defaultAvatar = 'assets/uploads/products/31.png';
 
 // Giá trị mặc định
 $userName = 'Tài khoản';
 $userRole = '';
 $userAvatar = $defaultAvatar;
+$cartCount = 0; 
 
 if ($isLoggedIn) {
-    // 1. Kết nối Database và Model trực tiếp trong Header để lấy thông tin MỚI NHẤT
+    // 1. Kết nối Database và Model
     require_once __DIR__ . '/../../models/UserModel.php';
-    require_once __DIR__ . '/../../core/Database.php'; // Đảm bảo load class Database
+    require_once __DIR__ . '/../../core/Database.php'; 
     
-    // Sửa lại thành getConnection() cho đúng với class Database của bạn
     if (!isset($db)) { require_once __DIR__ . '/../../config/db_config.php'; $db = Database::getConnection(); }
     
     $headerUserModel = new UserModel($db);
     $freshUser = $headerUserModel->getUserById($_SESSION['user_id']);
     
     if ($freshUser) {
-        // 2. Gán dữ liệu mới nhất hiển thị ra Header
         $userName = $freshUser['fullname'];
         $userRole = $freshUser['role'];
         $userAvatar = !empty($freshUser['avatar']) ? $freshUser['avatar'] : $defaultAvatar;
         
-        // 3. Cập nhật luôn lại vào Session để đồng bộ
         $_SESSION['user_name'] = $userName;
         $_SESSION['user_role'] = $userRole;
         $_SESSION['user_avatar'] = $userAvatar;
     }
+
+    // 2. Logic giỏ hàng cá nhân hóa (Chỉ khi đăng nhập mới đếm)
+    $currentUserId = $_SESSION['user_id'];
+    $userCart = $_SESSION['user_cart'][$currentUserId] ?? [];
+    $cartCount = count($userCart);
 }
 ?>
 <!DOCTYPE html>
@@ -43,10 +46,89 @@ if ($isLoggedIn) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* Sửa thanh trượt (Scrollbar) cho toàn trang */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f8f9fa; }
+        ::-webkit-scrollbar-thumb { background: #c1c2c5; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a9ab; }
+
+        /* CSS làm đẹp Filter */
+        .custom-filter-card {
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: #fff;
+            border: 1px solid #edf2f7;
+        }
+        .custom-filter-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+        }
+        .custom-filter-select {
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            color: #4a5568;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .custom-filter-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+        .custom-btn-filter {
+            border-radius: 10px;
+            background: linear-gradient(90deg, #38bdf8 0%, #3b82f6 100%);
+            border: none;
+            padding: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* CSS Ẩn/Hiện mật khẩu */
+        .password-toggle-icon {
+            cursor: pointer;
+            color: #9ca3af;
+            transition: color 0.2s;
+        }
+        .password-toggle-icon:hover {
+            color: #3b82f6;
+        }
+    </style>
 </head>
 <body>
+
+<?php if (isset($_SESSION['success_message'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công!',
+            text: '<?= addslashes($_SESSION['success_message']) ?>',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    });
+</script>
+<?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error_message'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Thất bại!',
+            text: '<?= addslashes($_SESSION['error_message']) ?>',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    });
+</script>
+<?php unset($_SESSION['error_message']); ?>
+<?php endif; ?>
 
 <div class="header-top">
     <div class="container d-flex justify-content-between">
@@ -107,11 +189,6 @@ if ($isLoggedIn) {
                 </div>
             <?php endif; ?>
 
-            <?php
-            $currentUserId = $_SESSION['user_id'] ?? 0;
-            $userCart = $_SESSION['user_cart'][$currentUserId] ?? [];
-            $cartCount = array_sum(array_column($userCart, 'qty'));
-            ?>
             <a href="public_entry.php?url=cart" class="action-item cart-badge">
                 <i class="fas fa-shopping-bag"></i>
                 <span>Giỏ hàng</span>
@@ -128,7 +205,6 @@ if ($isLoggedIn) {
             <li><a href="public_entry.php?url=products&category=2">Laptop</a></li>
             <li><a href="public_entry.php?url=products&category=3">Đồng hồ thông minh</a></li>
             <li><a href="public_entry.php?url=products&category=4">Phụ kiện</a></li>
-            <!-- Đã bổ sung ID cho 4 danh mục dưới -->
             <li><a href="public_entry.php?url=products&category=5">Máy tính bảng</a></li>
             <li><a href="public_entry.php?url=products&category=6">Tai nghe</a></li>
             <li><a href="public_entry.php?url=products&category=7">Máy ảnh</a></li>
@@ -151,6 +227,7 @@ if ($isLoggedIn) {
 
                 <div class="col-md-7 auth-right p-5 position-relative bg-white">
                     <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                    
                     <div id="login-form-container" class="fade-form">
                         <h3 class="fw-bold mb-4 text-dark">Đăng nhập</h3>
                         
@@ -160,7 +237,7 @@ if ($isLoggedIn) {
                             </div>
                         <?php endif; ?>
                         
-                        <form action="public_entry.php?url=login" method="POST">
+                        <form action="public_entry.php?url=login" method="POST" id="loginForm" onsubmit="return validateAuthForm('login')">
                             <input type="hidden" name="csrf_token" value="<?= CsrfHelper::generateToken() ?? ''; ?>">
                             <div class="mb-3">
                                 <label class="small text-muted fw-bold mb-1">Email</label>
@@ -168,38 +245,41 @@ if ($isLoggedIn) {
                             </div>
                             <div class="mb-3">
                                 <label class="small text-muted fw-bold mb-1">Mật khẩu</label>
-                                <input type="password" name="password" id="popup_password" class="form-control form-control-auth" placeholder="••••••••••••" required>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="popup_password" class="form-control form-control-auth border-end-0" placeholder="••••••••••••" required>
+                                    <span class="input-group-text bg-white border-start-0" style="border-radius: 0 10px 10px 0;">
+                                        <i class="far fa-eye password-toggle-icon" onclick="togglePasswordVisibility('popup_password', this)"></i>
+                                    </span>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary mb-3 shadow-sm w-100 py-2 fw-bold border-0" style="background: linear-gradient(90deg, #38bdf8 0%, #3b82f6 100%);">Vào hệ thống</button>
+                            <button type="submit" class="btn btn-primary mb-3 shadow-sm w-100 py-2 fw-bold border-0 custom-btn-filter">Vào hệ thống</button>
                             <p class="text-center small text-muted mb-4">Chưa có tài khoản? <span class="text-primary fw-bold cursor-pointer" style="cursor: pointer;" onclick="toggleAuth('signup')">Đăng ký ngay</span></p>
                         </form>
-
-                        <div class="mt-4 pt-3 border-top">
-                            <div class="small fw-bold text-secondary mb-2" style="font-size: 0.8rem;">
-                                <i class="fas fa-magic text-warning me-1"></i> Click điền nhanh tài khoản mẫu:
-                            </div>
-                            <div class="d-flex flex-column gap-2">
-                                <button type="button" class="btn btn-sm text-start d-flex justify-content-between align-items-center py-2 px-3 rounded-3" style="background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5;" onclick="popupQuickFill('admin@gmail.com', 'password')">
-                                    <span><i class="fas fa-user-shield me-2"></i><b>Quản trị viên</b></span>
-                                    <small class="text-muted">admin@gmail.com (password)</small>
-                                </button>
-                                <button type="button" class="btn btn-sm text-start d-flex justify-content-between align-items-center py-2 px-3 rounded-3" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;" onclick="popupQuickFill('user@gmail.com', 'password')">
-                                    <span><i class="fas fa-user me-2"></i><b>Khách hàng</b></span>
-                                    <small class="text-muted">user@gmail.com (password)</small>
-                                </button>
-                            </div>
-                        </div>
-
                     </div>
 
                     <div id="signup-form-container" class="fade-form" style="display: none;">
                         <h3 class="fw-bold mb-4 text-dark">Tạo tài khoản</h3>
-                        <form action="public_entry.php?url=register" method="POST">
+                        
+                        <form action="public_entry.php?url=register" method="POST" id="signupForm" onsubmit="return validateAuthForm('signup')">
                             <input type="hidden" name="csrf_token" value="<?= CsrfHelper::generateToken() ?? ''; ?>">
-                            <div class="mb-2"><label class="small text-muted fw-bold mb-1">Họ tên</label><input type="text" name="full_name" class="form-control form-control-auth" required></div>
-                            <div class="mb-2"><label class="small text-muted fw-bold mb-1">Email</label><input type="email" name="email" class="form-control form-control-auth" required></div>
-                            <div class="mb-3"><label class="small text-muted fw-bold mb-1">Mật khẩu</label><input type="password" name="password" class="form-control form-control-auth" required></div>
-                            <button type="submit" class="btn btn-primary mb-3 shadow-sm w-100 py-2 fw-bold border-0" style="background: linear-gradient(90deg, #38bdf8 0%, #3b82f6 100%);">Đăng ký tài khoản</button>
+                            <div class="mb-2">
+                                <label class="small text-muted fw-bold mb-1">Họ tên</label>
+                                <input type="text" name="full_name" class="form-control form-control-auth" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="small text-muted fw-bold mb-1">Email</label>
+                                <input type="email" name="email" class="form-control form-control-auth" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="small text-muted fw-bold mb-1">Mật khẩu</label>
+                                <div class="input-group">
+                                    <input type="password" name="password" id="popup_signup_password" class="form-control form-control-auth border-end-0" placeholder="••••••••••••" required>
+                                    <span class="input-group-text bg-white border-start-0" style="border-radius: 0 10px 10px 0;">
+                                        <i class="far fa-eye password-toggle-icon" onclick="togglePasswordVisibility('popup_signup_password', this)"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mb-3 shadow-sm w-100 py-2 fw-bold border-0 custom-btn-filter">Đăng ký tài khoản</button>
                             <p class="text-center small text-muted mb-0">Đã có tài khoản? <span class="text-primary fw-bold cursor-pointer" style="cursor: pointer;" onclick="toggleAuth('login')">Đăng nhập ngay</span></p>
                         </form>
                     </div>
@@ -229,20 +309,42 @@ if ($isLoggedIn) {
         }
     }
 
-    // Hàm Autofill kèm hiệu ứng UX
-    function popupQuickFill(email, password) {
-        const emailInput = document.getElementById('popup_email');
-        const passInput = document.getElementById('popup_password');
+    // Hàm ẩn/hiện mật khẩu
+    function togglePasswordVisibility(inputId, iconElement) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            iconElement.classList.remove('fa-eye');
+            iconElement.classList.add('fa-eye-slash');
+        } else {
+            input.type = "password";
+            iconElement.classList.remove('fa-eye-slash');
+            iconElement.classList.add('fa-eye');
+        }
+    }
+
+    // Hàm kiểm tra mật khẩu hợp lệ trước khi gửi form (Đăng nhập và Đăng ký)
+    function validateAuthForm(formType) {
+        // Lấy đúng ID của ô input mật khẩu dựa theo form đang điền
+        let passInputId = formType === 'login' ? 'popup_password' : 'popup_signup_password';
+        let passInput = document.getElementById(passInputId);
         
-        emailInput.value = email;
-        passInput.value = password;
+        // Kiểm tra độ dài
+        if (passInput.value.length < 6) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi xác thực',
+                text: 'Mật khẩu bắt buộc phải có ít nhất 6 ký tự!',
+                showConfirmButton: false,
+                timer: 2000 // Tự động tắt popup sau 2 giây
+            });
+            passInput.focus();
+            passInput.classList.add('is-invalid');
+            return false; // Ngăn chặn form submit lên server
+        }
         
-        const fields = [emailInput, passInput];
-        fields.forEach(f => {
-            f.style.transition = 'background-color 0.3s';
-            f.style.backgroundColor = '#e0f2fe';
-            setTimeout(() => { f.style.backgroundColor = '#ffffff'; }, 400);
-        });
+        passInput.classList.remove('is-invalid');
+        return true; // Cho phép dữ liệu được gửi đi
     }
 
     function confirmLogout() {

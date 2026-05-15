@@ -36,7 +36,6 @@
     <?php else: ?>
         <div class="row">
             <?php foreach ($orders as $order): 
-                // Xử lý mã đơn hàng (Nếu DB cũ chưa có order_code thì dùng ID)
                 $displayCode = !empty($order['order_code']) ? $order['order_code'] : 'TZ-'.str_pad($order['id'], 5, '0', STR_PAD_LEFT);
                 $originalAmt = $order['original_amount'] > 0 ? $order['original_amount'] : $order['total_price'];
                 $discountAmt = $order['discount_amount'] ?? 0;
@@ -45,7 +44,6 @@
                 <div class="order-card card border-0 shadow-sm rounded-4">
                     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-3">
                         <div class="d-flex align-items-center gap-3">
-                            <!-- Nút Copy Mã Đơn -->
                             <span class="badge bg-dark fs-6 rounded-pill px-3 py-2" id="order-<?= $displayCode ?>">#<?= $displayCode ?></span>
                             <button class="btn btn-sm btn-outline-secondary rounded-circle" onclick="copyOrderCode('<?= $displayCode ?>')" title="Copy mã đơn">
                                 <i class="far fa-copy"></i>
@@ -66,8 +64,52 @@
                     </div>
                     
                     <div class="card-body p-4">
-                        <!-- Nơi hiển thị danh sách sản phẩm (Tạm ẩn chờ Logic Backend) -->
-                        <div class="d-flex justify-content-end mt-3 border-top pt-3 text-end">
+                        <?php 
+                        $orderDetails = $order['items'] ?? $order['details'] ?? []; 
+                        
+                        // Nếu controller không truyền chi tiết, query lấy ra trực tiếp
+                        if (empty($orderDetails)) {
+                            if (!isset($db)) { 
+                                require_once __DIR__ . '/../../config/db_config.php'; 
+                                require_once __DIR__ . '/../../core/Database.php'; 
+                                $db = Database::getConnection(); 
+                            }
+                            $stmt = $db->prepare("
+                                SELECT od.quantity, od.price, p.name, p.thumbnail 
+                                FROM order_details od 
+                                JOIN products p ON od.product_id = p.id 
+                                WHERE od.order_id = ?
+                            ");
+                            $stmt->execute([$order['id']]);
+                            $orderDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                        }
+                        
+                        // In sản phẩm ra
+                        if (!empty($orderDetails)):
+                            foreach ($orderDetails as $item):
+                                $images = explode(',', $item['thumbnail'] ?? '');
+                                // ĐÃ SỬA: Lấy trực tiếp đường dẫn giống hệt trang Products
+                                $itemImage = htmlspecialchars(trim($images[0]));
+                        ?>
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <img src="<?= $itemImage ?>" alt="<?= htmlspecialchars($item['name'] ?? 'Sản phẩm') ?>" class="rounded-3 border" style="width: 80px; height: 80px; object-fit: cover; margin-right: 15px;">
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1 text-dark"><?= htmlspecialchars($item['name'] ?? 'Tên sản phẩm') ?></h6>
+                                <div class="text-muted small">Số lượng: x<?= htmlspecialchars($item['quantity'] ?? 1) ?></div>
+                            </div>
+                            <div class="text-end fw-bold text-danger ms-3">
+                                <?= number_format($item['price'] ?? 0, 0, ',', '.') ?>đ
+                            </div>
+                        </div>
+                        <?php 
+                            endforeach;
+                        else:
+                        ?>
+                        <div class="text-center text-muted py-3 border-bottom mb-3">
+                            <i class="fas fa-box-open me-2"></i> Chưa có dữ liệu chi tiết sản phẩm.
+                        </div>
+                        <?php endif; ?>
+                        <div class="d-flex justify-content-end mt-3 text-end">
                             <div>
                                 <p class="mb-1 text-muted">Tổng tiền hàng: <?= number_format($originalAmt, 0, ',', '.') ?>đ</p>
                                 <?php if($discountAmt > 0): ?>
@@ -76,20 +118,6 @@
                                 <h4 class="text-danger fw-bold m-0">Thành tiền: <?= number_format($order['total_price'], 0, ',', '.') ?>đ</h4>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="card-footer bg-light border-0 p-3 d-flex justify-content-end gap-2 rounded-bottom-4">
-                        <!-- Nút Hủy (Chỉ hiện khi chờ xác nhận) -->
-                        <?php if($order['status'] === 'pending'): ?>
-                            <button class="btn btn-outline-danger fw-bold" onclick="cancelOrder(<?= $order['id'] ?>)">Hủy Đơn Hàng</button>
-                        <?php endif; ?>
-
-                        <!-- Nút Đổi trả (Chỉ hiện khi đã giao xong) -->
-                        <?php if($order['status'] === 'completed'): ?>
-                            <button class="btn btn-outline-warning text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#returnModal<?= $order['id'] ?>">Yêu Cầu Đổi Trả</button>
-                        <?php endif; ?>
-                        
-                        <button class="btn btn-primary fw-bold">Mua Lại</button>
                     </div>
                 </div>
             </div>
@@ -103,31 +131,9 @@
     function copyOrderCode(code) {
         navigator.clipboard.writeText(code);
         Swal.fire({ 
-            toast: true, 
-            position: 'top-end', 
-            icon: 'success', 
-            title: 'Đã copy mã: #' + code, 
-            showConfirmButton: false, 
-            timer: 1500 
+            toast: true, position: 'top-end', icon: 'success', 
+            title: 'Đã copy mã: #' + code, showConfirmButton: false, timer: 1500 
         });
-    }
-
-    function cancelOrder(orderId) {
-        Swal.fire({
-            title: 'Hủy đơn hàng?',
-            text: "Bạn có chắc chắn muốn hủy đơn hàng này không?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Đồng ý hủy',
-            cancelButtonText: 'Không'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Sẽ nối API hủy đơn vào đây sau
-                Swal.fire('Đã hủy!', 'Đơn hàng của bạn đã được hủy thành công.', 'success');
-            }
-        })
     }
 </script>
 
