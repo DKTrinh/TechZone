@@ -69,7 +69,6 @@
 </div>
 
 <style>
-/* CSS giữ nguyên để đảm bảo giao diện đẹp như trang About lõi */
 :root {
     --tz-green: #1e3a3a;
     --tz-orange: #ff9d2e;
