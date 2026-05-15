@@ -411,22 +411,6 @@ http://localhost/TechZone/public/public_entry.php
 
 ---
 
-### Cách 2 (XAMPP / WAMP)
-
-Copy project vào:
-
-```text
-htdocs
-```
-
-Mở:
-
-```text
-http://localhost/TechZone/public/public_entry.php
-```
-
----
-
 # 🔑 Tài khoản kiểm thử
 
 Sau khi cài đặt xong, có thể sử dụng tài khoản demo:
