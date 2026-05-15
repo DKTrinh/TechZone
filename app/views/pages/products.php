@@ -1,10 +1,8 @@
 <style>
-    /* Tuỳ chỉnh màu nền cho 3 Banner */
     .dark-banner-1 { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); height: 350px; }
     .dark-banner-2 { background: linear-gradient(135deg, #141e30, #243b55); height: 350px; }
     .dark-banner-3 { background: linear-gradient(135deg, #232526, #414345); height: 350px; }
 
-    /* CSS làm đẹp cho form bộ lọc */
     .custom-filter-card {
         border-radius: 16px;
         transition: all 0.3s ease;
@@ -12,22 +10,18 @@
         border: 1px solid #edf2f7;
     }
     
-    /* BỔ SUNG: RESPONSIVE CHO MOBILE VÀ TABLET */
     @media (max-width: 991.98px) {
-        /* Giảm chiều cao banner trên màn hình nhỏ */
         .dark-banner-1, .dark-banner-2, .dark-banner-3 {
             height: 250px !important; 
         }
-        
-        /* Chữ trong banner nhỏ lại một xíu */
+
         #productBanner h2.display-5 {
             font-size: 1.8rem;
         }
         #productBanner p.fs-5 {
             font-size: 1rem !important;
         }
-
-        /* Hủy sticky-top của bộ lọc trên Mobile để không bị dính che mất màn hình */
+        
         .sticky-top {
             position: relative !important;
             top: 0 !important;
