@@ -1,8 +1,6 @@
 <?php
-// Giữ nguyên nạp Header và Footer theo yêu cầu của bạn
 require_once '../app/views/layouts/admin_header.php';
 ?>
-
 
 <style>
     #drop-zone-admin {
@@ -40,7 +38,6 @@ require_once '../app/views/layouts/admin_header.php';
     .track-change:focus { border-color: #ffc107 !important; box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25) !important; }
 </style>
 
-
 <div class="row">
     <div class="col-12 mt-5">
         <div class="card border-0 shadow-sm" style="border-radius: 15px;">
@@ -56,11 +53,8 @@ require_once '../app/views/layouts/admin_header.php';
                     </div>
                 <?php endif; ?>
 
-
                 <form id="aboutForm" action="public_entry.php?url=admin/about-update" method="POST" enctype="multipart/form-data">
                    
-
-
                     <?php if(!empty($contents)): ?>
                         <?php foreach($contents as $item): ?>
                         <div class="form-group mb-4">
@@ -70,7 +64,6 @@ require_once '../app/views/layouts/admin_header.php';
                             <textarea name="content[<?= $item['page_key'] ?>]" class="form-control bg-light track-change" rows="4" style="border-radius: 10px;"><?= htmlspecialchars($item['content_value']) ?></textarea>
                         </div>
                         <?php endforeach; ?>
-
 
                         <div class="text-right mt-5">
                             <button type="submit" class="btn btn-warning px-5 py-3 fw-bold btn-flat text-dark shadow-sm" style="border-radius: 50px;">
@@ -120,7 +113,6 @@ require_once '../app/views/layouts/admin_header.php';
         });
     });
 
-
     // --- C. POP-UP CẢNH BÁO KHI THOÁT RA MÀ CHƯA LƯU ---
     // Áp dụng cho các link trên Sidebar và Header (trừ link logout hoặc javascript)
     document.querySelectorAll('.sidebar-menu a, .user-profile a').forEach(link => {
@@ -128,7 +120,6 @@ require_once '../app/views/layouts/admin_header.php';
             if (isChanged && !this.href.includes('javascript:') && !this.classList.contains('user-dropdown-logout')) {
                 e.preventDefault();
                 const targetUrl = this.href;
-
 
                 Swal.fire({
                     title: 'Thay đổi chưa được lưu!',
@@ -158,12 +149,10 @@ require_once '../app/views/layouts/admin_header.php';
         }
     });
 
-
-    // --- E. LOGIC KÉO THẢ ẢNH (Giữ nguyên từ update.php) ---
+    // --- E. KÉO THẢ ẢNH  ---
     const dropZone = document.getElementById('drop-zone-admin');
     const avatarInput = document.getElementById('avatarInput');
     const previewImg = document.getElementById('previewAvatar');
-
 
     ['dragover', 'drop'].forEach(name => dropZone.addEventListener(name, e => { e.preventDefault(); e.stopPropagation(); }));
     dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
@@ -182,6 +171,4 @@ require_once '../app/views/layouts/admin_header.php';
     });
 </script>
 
-
 <?php require_once '../app/views/layouts/admin_footer.php'; ?>
-
