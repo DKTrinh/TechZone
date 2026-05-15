@@ -1,18 +1,13 @@
 <?php
-// app/core/BaseModel.php
 require_once __DIR__ . '/../config/db_config.php';
 
 class BaseModel {
     protected $db;
 
     public function __construct() {
-        // Tự động kết nối DB khi khởi tạo Model
         $this->db = Database::connect();
     }
 
-    /**
-     * Lấy nhiều dòng dữ liệu (Trả về mảng)
-     */
     public function fetchAll($sql, $params = []) {
         try {
             $stmt = $this->db->prepare($sql);
@@ -23,9 +18,6 @@ class BaseModel {
         }
     }
 
-    /**
-     * Lấy 1 dòng dữ liệu duy nhất
-     */
     public function fetchOne($sql, $params = []) {
         try {
             $stmt = $this->db->prepare($sql);
@@ -36,9 +28,6 @@ class BaseModel {
         }
     }
 
-    /**
-     * Thực thi các lệnh INSERT, UPDATE, DELETE
-     */
     public function execute($sql, $params = []) {
         try {
             $stmt = $this->db->prepare($sql);
