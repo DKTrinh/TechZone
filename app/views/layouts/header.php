@@ -309,7 +309,6 @@ if ($isLoggedIn) {
         }
     }
 
-    // Hàm ẩn/hiện mật khẩu
     function togglePasswordVisibility(inputId, iconElement) {
         const input = document.getElementById(inputId);
         if (input.type === "password") {
@@ -322,29 +321,26 @@ if ($isLoggedIn) {
             iconElement.classList.add('fa-eye');
         }
     }
-
-    // Hàm kiểm tra mật khẩu hợp lệ trước khi gửi form (Đăng nhập và Đăng ký)
+    
     function validateAuthForm(formType) {
-        // Lấy đúng ID của ô input mật khẩu dựa theo form đang điền
         let passInputId = formType === 'login' ? 'popup_password' : 'popup_signup_password';
         let passInput = document.getElementById(passInputId);
         
-        // Kiểm tra độ dài
         if (passInput.value.length < 6) {
             Swal.fire({
                 icon: 'error',
                 title: 'Lỗi xác thực',
                 text: 'Mật khẩu bắt buộc phải có ít nhất 6 ký tự!',
                 showConfirmButton: false,
-                timer: 2000 // Tự động tắt popup sau 2 giây
+                timer: 2000 
             });
             passInput.focus();
             passInput.classList.add('is-invalid');
-            return false; // Ngăn chặn form submit lên server
+            return false;
         }
         
         passInput.classList.remove('is-invalid');
-        return true; // Cho phép dữ liệu được gửi đi
+        return true; 
     }
 
     function confirmLogout() {
