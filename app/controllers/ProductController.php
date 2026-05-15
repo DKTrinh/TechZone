@@ -17,7 +17,6 @@ class ProductController {
         $maxPrice = isset($_GET['max_price']) ? (int)$_GET['max_price'] : 999999999;
         $sort = $_GET['sort'] ?? 'newest';
         
-        // Phân trang: 12 SP/trang (Sẽ đủ tạo ra 2 trang với 20 SP mẫu)
         $limit = 12; 
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $offset = ($page - 1) * $limit;
@@ -30,7 +29,6 @@ $totalProducts = $this->productModel->getTotalProducts($keyword, $categoryId, $b
         $categories = $this->productModel->getAllCategories(); 
         $brands = $this->productModel->getAllBrands();
 
-        // Banner động trang sản phẩm
         $banners = [
             ['image' => 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200', 'title' => 'Công Nghệ Dẫn Đầu', 'link' => '?url=products&brand=Apple'],
             ['image' => 'https://images.unsplash.com/photo-1531297172867-4f4013628f18?w=1200', 'title' => 'Đại Tiệc Laptop', 'link' => '?url=products&category=2']
