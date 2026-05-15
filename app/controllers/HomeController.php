@@ -10,7 +10,7 @@ class HomeController {
     }
 
     public function index() {
-        $limit = 24; // Số lượng đủ để chia cho Flash Sale(4), Nổi bật(8), Công nghệ mới(8)
+        $limit = 24;
         $offset = 0;
         
         $products = $this->productModel->getProductsPaginated($limit, $offset, '', '', '', 0, 999999999, 'newest');
