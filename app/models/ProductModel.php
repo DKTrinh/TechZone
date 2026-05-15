@@ -7,9 +7,6 @@ class ProductModel {
         $this->db = Database::getConnection(); 
     }
 
-    // =========================================================
-    // 1. DÀNH CHO TRANG CHỦ
-    // =========================================================
     public function getFeaturedProducts($limit = 8) {
         $stmt = $this->db->prepare("SELECT p.*, c.name as category_name 
                                     FROM products p 
@@ -33,9 +30,6 @@ class ProductModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =========================================================
-    // 2. DÀNH CHO TRANG SẢN PHẨM & TÌM KIẾM
-    // =========================================================
     public function getAllCategories() {
         $stmt = $this->db->query("SELECT * FROM categories ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -46,7 +40,6 @@ class ProductModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // HÀM BỊ THIẾU GÂY RA LỖI (Đã bổ sung bộ lọc brand)
     public function getTotalProducts($keyword = '', $categoryId = '', $brand = '') {
         $sql = "SELECT COUNT(*) FROM products WHERE name LIKE :keyword";
         if (!empty($categoryId)) {
@@ -78,8 +71,6 @@ class ProductModel {
         if (!empty($categoryId)) $sql .= " AND p.category_id = :cat_id";
         if (!empty($brand)) $sql .= " AND p.brand = :brand";
         
-        // MẸO: (p.stock_count = 0) sẽ trả về 1 nếu hết hàng, 0 nếu còn hàng. 
-        // ASC sẽ ưu tiên số 0 (còn hàng) nổi lên trước, số 1 (hết hàng) chìm xuống sau.
         $orderBy = " ORDER BY (p.stock_count = 0) ASC, ";
         
         switch ($sort) {
@@ -106,9 +97,6 @@ class ProductModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =========================================================
-    // 3. CHI TIẾT SẢN PHẨM
-    // =========================================================
     public function getProductById($id) {
         $stmt = $this->db->prepare("SELECT p.*, c.name as category_name 
                                     FROM products p 
@@ -127,9 +115,6 @@ class ProductModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // =========================================================
-    // 4. DÀNH CHO ADMIN QUẢN LÝ
-    // =========================================================
     public function insertProduct($categoryId, $brand, $name, $price, $oldPrice, $thumbnail, $desc, $stock) {
         $stmt = $this->db->prepare("INSERT INTO products (category_id, brand, name, price, old_price, thumbnail, description, stock_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         return $stmt->execute([$categoryId, $brand, $name, $price, $oldPrice, $thumbnail, $desc, $stock]);
