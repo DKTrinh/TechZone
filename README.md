@@ -368,6 +368,17 @@ Ví dụ XAMPP cài ở ổ D:
 ```bash
 D:\xampp\php\php.exe -S localhost:8000 -t public
 ```
+Sau khi Terminal hiển thị:
+
+```text
+Development Server (http://localhost:8000) started
+```
+
+truy cập:
+
+```text
+http://localhost:8000/public_entry.php
+```
 
 ---
 
