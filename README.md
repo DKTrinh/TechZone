@@ -284,7 +284,7 @@ git clone https://github.com/DKTrinh/TechZone.git
 
 ---
 
-## Bước 2: Tạo Database
+## Bước 2: Tạo Database.
 
 Mở:
 
@@ -306,7 +306,7 @@ database/main_database.sql
 
 ---
 
-## Bước 3: Cấu hình Database
+## Bước 3: Cấu hình Database.
 
 Mở file:
 
@@ -325,7 +325,7 @@ define("DB_PASS","");
 
 ---
 
-## Bước 4: Chạy ứng dụng
+## Bước 4: Chạy ứng dụng.
 
 ### Cách 1 (Khuyên dùng)
 
