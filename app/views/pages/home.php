@@ -8,7 +8,6 @@
     </div>
     
     <div class="row g-4">
-        <!-- Chèn vòng lặp lấy 4 sản phẩm ở đây -->
         <?php foreach(array_slice($products, 0, 4) as $p): ?>
         <div class="col-md-3">
             <div class="card h-100 border-0 shadow-sm product-card">
