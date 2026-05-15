@@ -67,7 +67,6 @@
                         <?php 
                         $orderDetails = $order['items'] ?? $order['details'] ?? []; 
                         
-                        // Nếu controller không truyền chi tiết, query lấy ra trực tiếp
                         if (empty($orderDetails)) {
                             if (!isset($db)) { 
                                 require_once __DIR__ . '/../../config/db_config.php'; 
@@ -84,11 +83,9 @@
                             $orderDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         }
                         
-                        // In sản phẩm ra
                         if (!empty($orderDetails)):
                             foreach ($orderDetails as $item):
                                 $images = explode(',', $item['thumbnail'] ?? '');
-                                // ĐÃ SỬA: Lấy trực tiếp đường dẫn giống hệt trang Products
                                 $itemImage = htmlspecialchars(trim($images[0]));
                         ?>
                         <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
