@@ -24,7 +24,6 @@ class ProfileController {
         $this->requireAuth();
         $userId = $_SESSION['user_id'];
         
-        // FIX LỖI CRASH DATABASE: Ép chuỗi rỗng thành NULL
         $gender = !empty($_POST['gender']) ? $_POST['gender'] : null;
         $birthdate = !empty($_POST['birthdate']) ? $_POST['birthdate'] : null;
 
@@ -37,7 +36,6 @@ class ProfileController {
             'birthdate' => $birthdate
         ];
 
-        // 1. LƯU ẢNH
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
             $targetDir = "assets/uploads/"; // Lưu thẳng vào public/assets/uploads
             if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
@@ -51,7 +49,6 @@ class ProfileController {
             }
         }
 
-        // 2. LƯU THÔNG TIN
         if ($this->userModel->updateProfile($userId, $data)) {
             $_SESSION['user_name'] = $data['fullname'];
             $_SESSION['auth_status'] = 'success';
@@ -72,7 +69,6 @@ class ProfileController {
         
         $hash = $this->userModel->getPasswordHash($userId);
         
-        // Hỗ trợ trường hợp pass cũ chưa mã hóa (nếu bạn tạo tay trong phpmyadmin)
         if (password_verify($current, $hash) || $current === $hash) {
             $this->userModel->updatePassword($userId, password_hash($new, PASSWORD_BCRYPT));
             $_SESSION['auth_status'] = 'success';
