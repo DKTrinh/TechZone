@@ -22,7 +22,6 @@ class Database {
         return self::$connection;
     }
 
-    // ✅ FIX TOÀN BỘ MODEL (QUAN TRỌNG)
     public static function connect() {
         return self::getConnection();
     }
