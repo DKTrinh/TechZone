@@ -6,7 +6,6 @@ class OrderModel {
         $this->db = $db; 
     }
 
-    // Hàm đặt hàng cơ bản (dành cho các logic cũ nếu có)
     public function createOrder($userId, $totalPrice, $cartItems) {
         $this->db->beginTransaction();
         try {
@@ -27,16 +26,13 @@ class OrderModel {
         }
     }
 
-    // Hàm đặt hàng đầy đủ thông tin (Dành cho trang Checkout mới)
     public function createOrderFull($userId, $name, $phone, $address, $totalPrice, $cartItems) {
         $this->db->beginTransaction();
         try {
-            // Lưu thông tin đơn hàng cùng thông tin người nhận
             $stmt = $this->db->prepare("INSERT INTO orders (user_id, customer_name, customer_phone, customer_address, total_price, status) VALUES (?, ?, ?, ?, ?, 'pending')");
             $stmt->execute([$userId, $name, $phone, $address, $totalPrice]);
             $orderId = $this->db->lastInsertId();
             
-            // Lưu chi tiết sản phẩm trong đơn hàng
             $stmtDetail = $this->db->prepare("INSERT INTO order_details (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
             foreach ($cartItems as $item) {
                 $stmtDetail->execute([$orderId, $item['id'], $item['qty'], $item['price']]);
@@ -50,7 +46,6 @@ class OrderModel {
         }
     }
 
-    // Lấy lịch sử đơn hàng của 1 user
     public function getOrdersByUser($userId) {
         $stmt = $this->db->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC");
         $stmt->execute([$userId]);
