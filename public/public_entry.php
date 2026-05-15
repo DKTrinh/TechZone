@@ -10,14 +10,12 @@ $baseUrl = $protocol . "://" . $host . $scriptDir . "/";
 
 define('BASE_URL', $baseUrl);
 
-// Nhúng các file Core & Helpers
 require_once '../app/helpers/SessionHelper.php';
 require_once '../app/helpers/CsrfHelper.php';
 require_once '../app/config/db_config.php'; 
 require_once '../app/core/Database.php'; 
 
 SessionHelper::start();
-// Chú ý: Dùng getConnection() theo đúng chuẩn class Database hiện tại
 $db = Database::getConnection();
 $url = $_GET['url'] ?? 'home';
 
@@ -50,7 +48,7 @@ switch ($url) {
         break;
 
     // =====================================
-    // 2. CÁC TRANG PUBLIC CHUNG (KHÁCH VÃNG LAI)
+    // 2. CÁC TRANG PUBLIC CHUNG 
     // =====================================
     case 'home':
         require_once '../app/controllers/HomeController.php';
@@ -61,8 +59,7 @@ switch ($url) {
         require_once '../app/controllers/AboutController.php';
         (new AboutController($db))->index();
         break;
-        
-    // BỔ SUNG VÀO KHỐI PUBLIC (Dành cho trang Khách)
+    
     case 'contact':
         require_once '../app/controllers/ContactController.php';
         (new ContactController($db))->index();
@@ -71,8 +68,7 @@ switch ($url) {
         require_once '../app/controllers/ContactController.php';
         (new ContactController($db))->save();
         break;
-
-    // BỔ SUNG VÀO KHỐI ADMIN (Quản lý Liên hệ)
+    
     case 'admin/contacts':
     case 'admin/contacts/status':
     case 'admin/contacts/delete':
@@ -101,7 +97,7 @@ switch ($url) {
         break;
 
     // =====================================
-    // 3. SẢN PHẨM & GIỎ HÀNG & ĐƠN HÀNG (NHÁNH 3)
+    // 3. SẢN PHẨM & GIỎ HÀNG & ĐƠN HÀNG 
     // =====================================
     case 'products':
         require_once '../app/controllers/ProductController.php';
@@ -221,7 +217,6 @@ switch ($url) {
         $adminDash->index();
         break;
         
-    // BỔ SUNG VÀO KHỐI ADMIN
     case 'admin/news':
     case 'admin/news/create':
     case 'admin/news/store':
