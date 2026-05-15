@@ -1,6 +1,5 @@
 <?php
-// contact.php - Chỉ phần body nội dung
-// Giả sử file này được include vào layout chính đã có header và footer
+
 ?>
 
 <!-- Contact Hero Section -->
