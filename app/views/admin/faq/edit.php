@@ -1,5 +1,4 @@
 <?php
-// Nạp Header theo chuẩn giao diện quản trị của bạn
 require_once '../app/views/layouts/admin_header.php';
 ?>
 
@@ -128,13 +127,11 @@ require_once '../app/views/layouts/admin_header.php';
             e.preventDefault();
             e.returnValue = ''; // Hiển thị dialog mặc định của trình duyệt
         }
-        // abc
     });
 </script>
 
 
 <?php
-// Kết thúc file với Footer chuẩn
 require_once '../app/views/layouts/admin_footer.php';
 ?>
 
